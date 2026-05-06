@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Carlsbad Structure — A Black Player's Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f14;
+    --surface: #13151e;
+    --surface2: #191d28;
+    --border: #252a38;
+    --blue: #4a7fc1;
+    --blue-dim: #2d5080;
+    --blue-bright: #7ab3f0;
+    --cream: #dde4f0;
+    --cream-dim: #8d97ad;
+    --red-accent: #c05a4a;
+    --green-accent: #4a9c6a;
+    --green-light: #6dc98a;
+    --amber: #d4a84a;
+    --amber-dim: #8a6a28;
+    --white-sq: #f0d9b5;
+    --black-sq: #b58863;
+    --highlight-black: rgba(74, 127, 193, 0.4);
+    --highlight-white: rgba(192, 90, 74, 0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--surface);
+    border-bottom: 2px solid var(--blue);
+    padding: 52px 0 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .masthead::before {
+    content: '♚';
+    position: absolute;
+    font-size: 340px;
+    color: rgba(74,127,193,0.06);
+    left: -60px;
+    top: -70px;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .masthead::after {
+    content: '♟';
+    position: absolute;
+    font-size: 260px;
+    color: rgba(74,127,193,0.06);
+    right: -30px;
+    bottom: -80px;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .masthead-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--blue-bright);
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .masthead h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(34px, 6vw, 64px);
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    position: relative;
+    z-index: 1;
+  }
+  .masthead h1 em {
+    color: var(--blue-bright);
+    font-style: italic;
+  }
+  .masthead-sub {
+    margin-top: 14px;
+    font-size: 17px;
+    color: var(--cream-dim);
+    font-style: italic;
+    position: relative;
+    z-index: 1;
+  }
+  .masthead-meta {
+    margin-top: 22px;
+    display: flex;
+    justify-content: center;
+    gap: 36px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--blue-dim);
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+  }
+  .masthead-meta span { color: var(--blue-bright); opacity: 0.7; }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section { padding: 56px 0 0; }
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--blue-bright);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-num::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.2;
+    margin-bottom: 24px;
+  }
+  .section p { color: var(--cream-dim); margin-bottom: 16px; font-size: 18px; }
+  .section p strong { color: var(--cream); font-weight: 600; }
+  .section p em { color: var(--blue-bright); font-style: italic; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 52px 0 0; }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    background: var(--surface2);
+    border-left: 3px solid var(--blue);
+    padding: 20px 24px;
+    margin: 28px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--blue-bright);
+    margin-bottom: 8px;
+  }
+  .callout p { margin: 0; font-style: italic; font-size: 16px; }
+  .callout.warning { border-left-color: var(--red-accent); }
+  .callout.warning .callout-label { color: var(--red-accent); }
+  .callout.tip { border-left-color: var(--green-light); }
+  .callout.tip .callout-label { color: var(--green-light); }
+  .callout.amber { border-left-color: var(--amber); }
+  .callout.amber .callout-label { color: var(--amber); }
+
+  /* ── PLAN GRID ── */
+  .plan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+    margin: 28px 0;
+  }
+  .plan-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--blue);
+    padding: 22px 20px;
+    border-radius: 0 0 8px 8px;
+    transition: border-color 0.2s;
+  }
+  .plan-card:hover { border-color: var(--blue); border-top-color: var(--blue-bright); }
+  .plan-card-icon { font-size: 28px; margin-bottom: 10px; }
+  .plan-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--cream); margin-bottom: 8px; }
+  .plan-card p { font-size: 14px; color: var(--cream-dim); margin: 0; line-height: 1.6; }
+
+  /* ── PLAN DETAIL SECTIONS ── */
+  .plan-section {
+    margin-top: 44px;
+    padding: 34px 30px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    position: relative;
+  }
+  .plan-section::before {
+    content: attr(data-num);
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 76px;
+    color: var(--border);
+    font-weight: 700;
+    line-height: 1;
+  }
+  .plan-section h3 { font-family: 'Cormorant Garamond', serif; font-size: 28px; color: var(--blue-bright); margin-bottom: 4px; }
+  .plan-section .plan-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--green-light);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .plan-section p { color: var(--cream-dim); margin-bottom: 14px; font-size: 16px; }
+  .plan-section p strong { color: var(--cream); }
+  .plan-section h4 { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--cream); margin: 20px 0 10px; font-weight: 600; }
+
+  /* ── MOVES ── */
+  .moves {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 20px;
+    margin: 14px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--cream-dim);
+    line-height: 2;
+  }
+  .move-num { color: var(--blue-dim); }
+  .move-w { color: var(--cream-dim); }
+  .move-b { color: var(--blue-bright); font-weight: 500; }
+  .move-note { color: var(--green-light); font-style: italic; font-size: 12px; }
+  .move-key { color: var(--amber); font-weight: 700; }
+
+  /* ── STEP LIST ── */
+  .step-list { list-style: none; margin: 16px 0; counter-reset: steps; }
+  .step-list li {
+    counter-increment: steps;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+    font-size: 15px;
+    color: var(--cream-dim);
+  }
+  .step-list li::before {
+    content: counter(steps);
+    min-width: 28px;
+    height: 28px;
+    background: var(--blue);
+    color: var(--bg);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-list li strong { color: var(--cream); }
+
+  /* ── TABLES ── */
+  .principle-table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 15px; }
+  .principle-table th {
+    background: var(--blue);
+    color: var(--bg);
+    padding: 10px 16px;
+    text-align: left;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .principle-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--cream-dim); vertical-align: top; }
+  .principle-table tr:nth-child(even) td { background: var(--surface2); }
+  .principle-table td:first-child { color: var(--cream); font-weight: 600; white-space: nowrap; }
+
+  /* ── VERSUS BOX ── */
+  .versus-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .versus-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .versus-box.white-box { border-top: 3px solid var(--red-accent); }
+  .versus-box.black-box { border-top: 3px solid var(--blue-bright); }
+  .versus-box h4 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .versus-box.white-box h4 { color: var(--red-accent); }
+  .versus-box.black-box h4 { color: var(--blue-bright); }
+  .versus-box ul { list-style: none; }
+  .versus-box ul li { font-size: 14px; color: var(--cream-dim); margin-bottom: 8px; padding-left: 16px; position: relative; }
+  .versus-box ul li::before { content: '→'; position: absolute; left: 0; color: var(--blue-dim); }
+  .versus-box.white-box ul li::before { color: var(--red-accent); opacity: 0.6; }
+
+  /* ── RESPONSE TABLE ── */
+  .response-table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px; }
+  .response-table th {
+    background: var(--surface2);
+    color: var(--blue-bright);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+  .response-table td { padding: 12px 14px; border: 1px solid var(--border); color: var(--cream-dim); vertical-align: top; }
+  .response-table td:first-child { color: var(--blue-bright); font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+  .response-table td:nth-child(2) { color: var(--amber); font-weight: 600; }
+  .response-table tr:hover td { background: var(--surface2); }
+
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--blue-bright);
+  }
+
+  /* ── BOARD ── */
+  .board-wrap { margin: 32px 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .board-caption { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--blue-dim); text-align: center; letter-spacing: 0.05em; }
+
+  /* ── BADGE ── */
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 3px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .badge-primary { background: var(--blue); color: var(--bg); font-weight: 700; }
+  .badge-high { background: var(--green-accent); color: var(--cream); }
+  .badge-medium { background: var(--border); color: var(--cream-dim); }
+  .badge-advanced { background: #2a1530; color: #c9a0dc; border: 1px solid #5a3070; }
+
+  .footer {
+    margin-top: 72px;
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--blue-dim);
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-label">Chess Structure Series · Black's Perspective</div>
+  <h1>The <em>Carlsbad</em> Structure</h1>
+  <div class="masthead-sub">The complete guide to playing the Black side — from survival to counterattack</div>
+  <div class="masthead-meta">
+    <span>♚ Playing: Black</span>
+    <span>◆ Entry: QGD · Anti-London · Semi-Slav</span>
+    <span>♟ Level: Beginner → Intermediate</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- SECTION 01: FOUNDATION -->
+  <div class="section">
+    <div class="section-num">01 — Foundation</div>
+    <h2>The Carlsbad from Black's Eyes</h2>
+
+    <p>The same structure that White exploits for a methodical queenside attack is the structure that Black must navigate with care, creativity, and counterplay. Understanding the Carlsbad from Black's perspective is different from White's — <strong>Black is not the one dictating the pace</strong>. White has a clear plan; Black must respond to it while simultaneously building their own.</p>
+
+    <p>This asymmetry is the defining psychological feature of the Carlsbad for Black. You are not worse — the structure is objectively close to equal — but you must work harder for your counterplay. The good news: <strong>Black has rich resources</strong>, a kingside majority, active piece play, and multiple ways to generate genuine counterplay or even seize the initiative. World champions Karpov, Petrosian, and Kasparov all played both sides of this structure at the highest level.</p>
+
+    <div class="versus-grid">
+      <div class="versus-box white-box">
+        <h4>♙ White's Advantages</h4>
+        <ul>
+          <li>Clear queenside plan (minority attack)</li>
+          <li>Half-open c-file pressure</li>
+          <li>Can force structural weakness on c6</li>
+          <li>Bd3 points at h7 (kingside threat)</li>
+          <li>Ne5 outpost is powerful</li>
+        </ul>
+      </div>
+      <div class="versus-box black-box">
+        <h4>♟ Black's Advantages</h4>
+        <ul>
+          <li>Kingside pawn majority (f, g, h pawns)</li>
+          <li>Ne4 is a dominant central outpost</li>
+          <li>Half-open e-file for rook activity</li>
+          <li>Can counterattack with ...g5–f5–f4</li>
+          <li>Active dark-squared bishop if developed early</li>
+          <li>...c5 break creates IQP counterplay</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">Core Mindset for Black</div>
+      <p>Don't just defend. Black's most successful approach in the Carlsbad is not passive resistance but <em>timed counterattack</em>. The minority attack takes time to execute — use that time to activate your pieces and prepare a concrete plan. When White commits pawns to the queenside, the kingside opens up for you.</p>
+    </div>
+
+    <!-- BOARD: Carlsbad from Black's eyes -->
+    <div class="board-wrap">
+      <div id="board-carlsbad-black"></div>
+      <div class="board-caption">The Carlsbad Structure — Black to play. Blue: Black's key targets &amp; resources. Red: White's threats.</div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 02: BLACK'S STRUCTURAL CHALLENGES -->
+  <div class="section">
+    <div class="section-num">02 — Key Challenges</div>
+    <h2>Black's Three Structural Problems</h2>
+
+    <p>Before learning what to do, you need to understand exactly what's working against you. Black has three structural challenges that define every decision in this middlegame. Knowing them makes the plans obvious — you're always either solving these problems or using them as a decoy.</p>
+
+    <div class="plan-section" data-num="①">
+      <h3>The Bad Bishop Problem</h3>
+      <span class="plan-tag">♗ The c8-Bishop — Black's Passive Piece</span>
+      <p>Black's light-squared bishop on c8 is the most problematic piece in the entire structure. It is blocked by its own pawns on d5 and e6 and has no obvious square to develop to. This is not an accident — it is the structural consequence of Black having played ...e6 to support the d5 pawn.</p>
+      <p>If you do nothing about this bishop, it will stay passive all game and White's superior piece coordination will gradually tell. <strong>Everything Black does in the opening and early middlegame should be influenced by this bishop's development.</strong> The bishop wants to reach f5, g4, or — in more complex scenarios — b7 via ...b6 and ...Bb7. Getting it out is not optional.</p>
+      <div class="callout amber">
+        <div class="callout-label">Critical Trap — Why ...Bf5 Needs Timing</div>
+        <p>Black cannot rush ...Bf5. If Black plays ...Nf6 before ...c6, White has the trick 5.Bxf6 Qxf6 6.Qb3! with a double attack on d5 and b7. Always play ...c6 to support d5 <em>before</em> developing the bishop. Or take a different approach — develop with ...h6 and ...Bg4, pinning the knight instead.</p>
+      </div>
+    </div>
+
+    <div class="plan-section" data-num="②">
+      <h3>The c6 Pawn Weakness</h3>
+      <span class="plan-tag">♟ White's Primary Target</span>
+      <p>After White executes the minority attack (b4–b5–bxc6), Black is typically left with a backward or isolated pawn on c6. This is a permanent structural weakness — it cannot be healed by pawn moves alone. It sits on a half-open file, making it a target for White's rooks and queen. The c5 square directly in front of it becomes an ideal outpost for a White knight.</p>
+      <p>You have three choices when this happens: <strong>defend it actively</strong> (piece coordination, c5 square control), <strong>trade it off</strong> (push ...c5 to create an IQP but gain piece activity), or <strong>prevent it altogether</strong> (push ...a5 or ...b5 before White gets b5 in).</p>
+      <p>The worst response is to passively defend the c6 pawn with pieces while doing nothing on the other side of the board. Passive defense in the Carlsbad is a slow death for Black.</p>
+    </div>
+
+    <div class="plan-section" data-num="③">
+      <h3>The d5 Pawn Under Pressure</h3>
+      <span class="plan-tag">♙ Central Tension</span>
+      <p>Black's d5 pawn is both a strength and a liability. It controls the center but is fixed — it cannot advance, and White's pieces (Bd3, Nf3/Ne5, Rc1) all aim at it and the surrounding squares. If White plays the e4 break (Plan C from the White guide), the d5 pawn comes under direct central fire.</p>
+      <p>The key: <strong>don't let your pieces become passive defending d5</strong>. Develop actively, and use piece activity to compensate for the fixed pawn. Black's best defensive pieces for d5 are the knight on f6 (controlling e4), the knight on d7 (supporting d5 from the rear), and a bishop on e6 or b7. If d5 is solidly supported by pieces, White's pressure is manageable.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 03: BLACK'S PLANS OVERVIEW -->
+  <div class="section">
+    <div class="section-num">03 — Strategic Map</div>
+    <h2>Black's Five Counterplans</h2>
+
+    <p>Black has five legitimate strategic responses in the Carlsbad. These are not all defensive — several are aggressive counterattacks. Which one you choose depends on which White plan is coming and what piece deployment you've achieved. Understanding all five puts you in command of the board rather than reacting to White's agenda.</p>
+
+    <div class="plan-grid">
+      <div class="plan-card">
+        <div class="plan-card-icon">♗</div>
+        <h3>Plan A: Active Bishop Development</h3>
+        <p>Develop the light-squared bishop to f5 or g4 early, solving the "bad bishop" problem before White can prevent it. ...Nh5 is the modern refinement.</p>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-icon">♞</div>
+        <h3>Plan B: The Ne4 Outpost</h3>
+        <p>Plant a knight on e4, Black's most powerful central outpost. Enables ...f5 kingside expansion and controls key squares. Trades favorably for White's dark-squared bishop.</p>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-icon">♟♟</div>
+        <h3>Plan C: Stopping the Minority Attack</h3>
+        <p>Counter White's b4–b5 advance directly with ...a5, ...b5, or ...Nb6–c4. Convert queenside defense into active counterplay with the passed a-pawn or c4 outpost.</p>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-icon">♔</div>
+        <h3>Plan D: Kingside Attack</h3>
+        <p>Use Black's kingside majority (f, g, h pawns) for a direct kingside storm: ...g5–f5–f4. Particularly powerful when White has overcommitted to the queenside.</p>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-icon">♛</div>
+        <h3>Plan E: The ...c5 Break</h3>
+        <p>Push ...c5 to challenge White's d4 pawn and dissolve the queenside structure. Accept an isolated queen's pawn (IQP) in exchange for dynamic piece activity and open lines.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">Key Principle</div>
+      <p>Plans A and B are your development priorities — execute them in every game regardless of White's plan. Plans C, D, and E are your <em>counterattack choices</em> — you pick one based on what White is doing and how the position has developed. Never wait passively; always have a concrete plan of your own in motion.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 04: DEEP DIVES -->
+  <div class="section">
+    <div class="section-num">04 — Deep Dive</div>
+    <h2>Each Plan Explained in Full</h2>
+
+    <!-- PLAN A -->
+    <div class="plan-section" data-num="A">
+      <h3>Plan A — Active Bishop Development</h3>
+      <span class="plan-tag">♗ Solving the Bad Bishop Problem First</span>
+
+      <p>The light-squared bishop is Black's most important piece to activate. In the standard Carlsbad position after 4.cxd5 exd5 5.Bg5 c6 6.e3, the bishop is stuck behind the e6 pawn that no longer exists. But the c8-bishop doesn't have a natural square yet — Black needs to engineer its development as a top priority, before White's setup is fully consolidated.</p>
+
+      <h4>Option 1: ...Bf5 (The Classical Approach)</h4>
+      <p>The cleanest solution. After Black plays ...c6 (to support d5), the bishop slides to f5. Once on f5, it is active, eyes the d3 bishop aggressively, and is not easily challenged. White often responds with Bd3–Bxf5, but this exchange actually helps Black — trading bishops eliminates White's most dangerous attacking piece on the b1–h7 diagonal.</p>
+
+      <div class="moves">
+        <span class="move-num">...</span><span class="move-b">c6</span>
+        <span class="move-num">...</span><span class="move-b">Nf6</span>
+        <span class="move-num">...</span><span class="move-b">Bf5 ←</span>
+        <span class="move-note"> ← Bishop out. The ...Bd6 follow-up offers to exchange on d3.</span>
+      </div>
+
+      <p>After ...Bf5, Black often continues with ...Bd6 to invite Bxd6 Qxd6. If White exchanges, Black gets the queen actively placed on d6 and the light-square complex is under Black's control. If White avoids the exchange, the bishop remains active on f5 as a long-term asset.</p>
+
+      <h4>Option 2: ...Nh5 (The Modern Refinement)</h4>
+      <p>After White plays Bg5 and Black plays ...Be7, the knight retreat ...Nh5 immediately forces the bishop exchange: White must play Bxe7 Qxe7. This is Black's best modern response to the Bg5 system. The knight looks awkward on h5 but it has done its job — the dark-squared bishops are off the board, and Black's position is fundamentally easier to handle. The knight returns to f6 via ...Nf6 or reroutes to f4/g7.</p>
+
+      <div class="moves">
+        <span class="move-num">5.</span><span class="move-w">Bg5</span> <span class="move-b">c6</span>
+        <span class="move-num">6.</span><span class="move-w">e3</span> <span class="move-b">Be7</span>
+        <span class="move-num">7.</span><span class="move-w">Bd3</span> <span class="move-b">Nbd7</span>
+        <span class="move-num">8.</span><span class="move-w">Qc2</span> <span class="move-b">Nh5! ←</span>
+        <span class="move-note"> ← Forces bishop exchange regardless of White's plan</span>
+        <span class="move-num">9.</span><span class="move-w">Bxe7</span> <span class="move-b">Qxe7</span>
+        <span class="move-note"> ← Black has solved the dark-squared bishop problem</span>
+      </div>
+
+      <h4>Option 3: ...Bg4 (The Aggressive Pin)</h4>
+      <p>Instead of ...Bf5, Black develops with ...Bg4, pinning White's knight on f3 or e2. This is more aggressive but slightly less stable — White can chase the bishop with h3, forcing ...Bh5 or ...Bxf3. If Black captures on f3, White gets the bishop pair, which can be powerful in the endgame. Use this when you want concrete complications rather than clean positional play.</p>
+
+      <div class="callout tip">
+        <div class="callout-label">Coaching Note — Your Anti-London Games</div>
+        <p>In your Anti-London games where White plays 2.Bf4, Black's light-squared bishop is easier to develop — it can often come to d6, inviting the Bxd6 Qxd6 trade. When White does exchange on d6, your queen becomes very active on d6 targeting both queenside and the h2 pawn via Qh2+ tricks. Watch for this theme.</p>
+      </div>
+    </div>
+
+    <!-- PLAN B -->
+    <div class="plan-section" data-num="B">
+      <h3>Plan B — The Ne4 Outpost</h3>
+      <span class="plan-tag">♞ Black's Most Powerful Central Piece</span>
+
+      <p>The e4 square is Black's equivalent of White's e5 — a powerful central outpost where the knight cannot be challenged by White's pawns. A knight on e4 controls the key squares f2, d2, c3, and g3, and enables ...f5 expanding the kingside. This is Black's single most important middlegame idea in the Carlsbad and you should be constantly looking to make it happen.</p>
+
+      <h4>How to Get the Knight to e4</h4>
+      <ul class="step-list">
+        <li><strong>Develop naturally: ...Nf6, ...Nbd7, castle.</strong> The standard route is simply ...Nf6 and then ...Ne4 directly, if the square is available and undefended. More commonly, Black plays ...Nbd7 first, then ...Nf8–e6 or ...Nf6–e4.</li>
+        <li><strong>Prepare with ...Re8.</strong> Placing the rook on e8 before playing ...Ne4 has a key purpose: after Bxe7 Rxe7, the rook on e7 can swing to c7 or d7, supporting the queenside. Also, Re8 prevents White from playing Ne5 before you're ready.</li>
+        <li><strong>Time it against White's Qc2.</strong> If White plays 8.Qc2 without first playing Nf3, Black's ...Ne4 is particularly strong: after 9.Bxe7 Qxe7 10.Nxe4 dxe4 11.Bxe4, Black has doubled White's e-pawns conceptually and gained the e-file. This is why Qc2 + Nge2 is White's modern answer — to sidestep this exact idea.</li>
+      </ul>
+
+      <div class="moves">
+        <span class="move-num">7.</span><span class="move-w">Bd3</span> <span class="move-b">Nbd7</span>
+        <span class="move-num">8.</span><span class="move-w">Nf3</span> <span class="move-b">0-0</span>
+        <span class="move-num">9.</span><span class="move-w">0-0</span> <span class="move-b">Re8</span>
+        <span class="move-num">10.</span><span class="move-w">Qc2</span> <span class="move-b">Ne4! ←</span>
+        <span class="move-note"> ← The Ne4 outpost. White must react — exchanges here favor Black.</span>
+      </div>
+
+      <h4>What Happens After ...Ne4</h4>
+      <p>White has several options but none are fully comfortable. If White plays <strong>Bxe7 Qxe7</strong> followed by <strong>Nxe4 dxe4</strong>, Black has the pawn on e4, a semi-open d-file, and active piece play. If White leaves the knight on e4 and plays around it, Black simply reinforces it with ...f5, transforming it from an outpost into a kingside attacking piece. The knight on e4 is the engine of both Plan B and Plan D — they are deeply connected.</p>
+
+      <h4>The ...f5 Follow-up</h4>
+      <p>Once the knight is established on e4, the natural continuation is ...f5 — a direct kingside pawn advance. This does several things: supports the e4 knight permanently, threatens ...f4 pushing White's knight or pawn backward, and initiates a kingside attack if White has castled there. The ...f5–f4 advance is one of Black's most powerful ideas in the entire structure. It mirrors White's f4 push in the Pillsbury attack — Black is playing the same attacking theme on their own terms.</p>
+    </div>
+
+    <!-- PLAN C -->
+    <div class="plan-section" data-num="C">
+      <h3>Plan C — Stopping the Minority Attack</h3>
+      <span class="plan-tag">♟ Don't Defend Passively — Fight It</span>
+
+      <p>This plan is about meeting White's b4–b5 advance on your own terms rather than waiting to be attacked. Black has several ways to disrupt or redirect the minority attack, each with different strategic consequences. The common thread: <strong>don't just sit there and let White create the c6 weakness unopposed</strong>.</p>
+
+      <h4>Option 1: ...a5 — Preemptive Queenside Freeze</h4>
+      <p>Playing ...a5 early stops White from playing a4–a5 as a preparation for b5, and threatens to push ...a4 cramping White's queenside. The strategic idea: Black meets b5 with ...cxb5 followed by ...a4–a3, creating a passed pawn on the a-file that becomes a long-term asset. White's queenside majority is frozen; Black's a-passer becomes threatening.</p>
+
+      <div class="moves">
+        <span class="move-num">...</span><span class="move-b">0-0</span>
+        <span class="move-num">...</span><span class="move-b">Re8</span>
+        <span class="move-num">...</span><span class="move-b">a5! ←</span>
+        <span class="move-note"> ← Preemptive freeze on the a-file. If White plays b5, Black has ...cxb5 axb5 ...a4</span>
+      </div>
+
+      <h4>Option 2: ...b5 — Black Plays the Minority Attack!</h4>
+      <p>In some positions, Black can play ...b5 themselves, locking the queenside. This prevents White's b4–b5 push entirely by occupying b5 first. The strategic consequence: White no longer has a queenside plan, which can be very disorienting. Black now has the c4 square available for a knight jump (via ...Nb6–c4 or ...Na6–c5). This is one of the most ambitious responses to the minority attack threat and creates a strong outpost on c4 that White struggles to challenge.</p>
+
+      <h4>Option 3: ...Nb6 — The Knight Defends and Attacks</h4>
+      <p>Routing a knight to b6 serves multiple purposes: it defends the c6 pawn from an active square, it can jump to c4 to create its own outpost, and it meets White's b5 with ...cxb5 axb5 ...a5, gaining queenside space. This is Karpov's favourite defensive approach — active defense that turns into counterplay.</p>
+
+      <h4>Option 4: ...Rc8 + ...a6 — Flexible Defense</h4>
+      <p>Placing the rook on c8 to defend c6 and playing ...a6 to meet b5 with ...axb5 ...c5 is a solid, flexible approach. After ...axb5, if White recaptures axb5, Black plays ...c5, dissolving the c6 weakness by creating an IQP — but on Black's terms with an active position.</p>
+
+      <div class="callout tip">
+        <div class="callout-label">Key Principle — React Before White Gets b5 In</div>
+        <p>The most important timing principle in Plan C: don't wait until White has already played b5 and created the weakness. Prepare your response <em>while White is still setting up</em> (playing Rb1, b4). Once White has b5 and the c6 pawn is isolated, your defensive task is much harder. Early ...a5 or ...Nb6 changes the entire narrative.</p>
+      </div>
+    </div>
+
+    <!-- PLAN D -->
+    <div class="plan-section" data-num="D">
+      <h3>Plan D — The Kingside Attack</h3>
+      <span class="plan-tag">♔ Black's Most Aggressive Weapon</span>
+
+      <p>Black's kingside majority (pawns on f7, g7, h7 versus White's pawns on f2, g2, h2 after typical development) gives Black a legitimate attacking resource that many players underestimate. When White commits heavily to the queenside minority attack, the kingside is relatively undefended — and Black's pawns and pieces can storm it.</p>
+
+      <p>This plan is most effective when: White has played the Pillsbury setup (Ne5 + f4), overcommitting kingside pieces while the queenside remains open; or White has castled kingside and then neglected the king's shelter while playing b4–b5.</p>
+
+      <h4>The ...g5 Storm</h4>
+      <p>Black's signature kingside attacking move. After establishing the Ne4 outpost and playing ...f5, Black can continue with ...g5, gaining space and threatening ...g4 to push White's knight away from e3 or g3. Once ...g4 is played, the h-file can open via ...h5–h4 or gxh3, creating a direct attack on the White king. This is not a speculative attack — it is a concrete pawn storm supported by piece coordination.</p>
+
+      <div class="moves">
+        <span class="move-num">...</span><span class="move-b">Ne4</span>
+        <span class="move-num">...</span><span class="move-b">f5</span>
+        <span class="move-num">...</span><span class="move-b">g5 ←</span>
+        <span class="move-note"> ← The kingside storm begins. Threatening ...g4 and eventually ...h5-h4</span>
+      </div>
+
+      <h4>When White Plays Pillsbury (Ne5 + f4)</h4>
+      <p>Paradoxically, when White plays the Pillsbury attack with Ne5 and f4, this can be the best time for Black's kingside counterplay. White's f-pawn has advanced, creating weaknesses. Black meets this with ...Nxe5 (exchanging the powerful e5 knight) followed by ...f6, undermining White's f4 pawn and opening the f-file for Black's own rooks. After the f-file opens, Black's pieces suddenly become very active and White's king can be in danger.</p>
+
+      <h4>Queenside Attack When White Castles Queenside</h4>
+      <p>If White castles queenside (0-0-0) in a sharp Carlsbad line, Black's queenside majority immediately becomes an <em>attacking weapon</em> rather than a defensive burden. The typical plan: ...c5–c4, ...b5–b4, ...a5–a4, rolling the pawns at White's king. This reverses the entire logic of the structure — Black is now the one executing a pawn storm.</p>
+    </div>
+
+    <!-- PLAN E -->
+    <div class="plan-section" data-num="E">
+      <h3>Plan E — The ...c5 Break</h3>
+      <span class="plan-tag">♛ Dynamic Dissolution — Creating Active Play</span>
+
+      <p>The ...c5 break is Black's most dramatic structural decision. By pushing ...c5, Black directly challenges White's d4 pawn and dissolves the fixed d5-c6 pawn chain. The trade-off: after dxc5, Black has an isolated queen's pawn (IQP) on d5. In exchange, Black gets active pieces, open lines, and counterplay in the center.</p>
+
+      <p>This plan is best chosen when: Black's pieces are well-coordinated and active (so the IQP is compensated by piece activity); White has committed heavily to the queenside and is not set up to blockade d5; or Black needs to break the positional bind and create dynamic complications.</p>
+
+      <div class="moves">
+        <span class="move-num">...</span><span class="move-b">c5! ←</span>
+        <span class="move-num">...</span><span class="move-note"> ← If White plays dxc5, Black has IQP but active pieces. If White plays d5, structure changes completely.</span>
+      </div>
+
+      <h4>After dxc5 — Playing the IQP</h4>
+      <p>If White captures dxc5, Black recaptures and has an IQP on d5. The IQP position is a rich subject in itself, but the key principles for Black: keep the d5 pawn defended by pieces (not pawns); use the open c-file and active bishops; seek the d4 break to advance the IQP at the right moment; and keep pieces on the board — IQP positions favor the side with more pieces.</p>
+
+      <h4>After d5 — Passed Pawn vs. Space</h4>
+      <p>If White plays d5 instead of capturing, the pawn structure transforms into a passed pawn on d5 for White. This is actually fine for Black if the pieces are well-coordinated — the d5 pawn is advanced and can become overextended. Black's response is typically ...Re8 preparing ...e5 ideas, or ...Nb6 attacking the passed pawn. The character of the game changes completely from strategic maneuvering to dynamic complications.</p>
+
+      <div class="callout warning">
+        <div class="callout-label">Timing Warning</div>
+        <p>Don't play ...c5 when your pieces are passive or uncoordinated. The IQP that results requires active piece play to compensate — if your bishop is on e7 and your rooks are not open files, the IQP will be a weakness, not an asset. Coordinate first, break second.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 05: RESPONDING TO WHITE'S 5 PLANS -->
+  <div class="section">
+    <div class="section-num">05 — Counter-Strategy</div>
+    <h2>How to Respond to Each White Plan</h2>
+
+    <p>Now that you know Black's five plans, the critical skill is matching your plan to what White is doing. The table below maps White's five plans (from the White guide) to Black's best responses. The goal is not to memorize this — it's to internalize the <em>logic</em> so it becomes automatic.</p>
+
+    <table class="response-table">
+      <thead>
+        <tr>
+          <th>White's Plan</th>
+          <th>Black's Best Response(s)</th>
+          <th>Key Idea</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Plan A: Minority Attack (b4–b5)</td>
+          <td>Plan C + Plan D</td>
+          <td>Counter queenside with ...a5 or ...Nb6 before b5 lands. Launch kingside with ...Ne4...f5...g5 simultaneously.</td>
+        </tr>
+        <tr>
+          <td>Plan B: Pillsbury (Ne5 + f4)</td>
+          <td>Plan B + ...Nxe5</td>
+          <td>Exchange the e5 knight immediately with ...Nxe5. Then play ...f6 to undermine f4. Open the f-file for your rooks.</td>
+        </tr>
+        <tr>
+          <td>Plan C: e4 Break (f3–e4)</td>
+          <td>Plan E + Plan B</td>
+          <td>If White pushes e4, play ...dxe4 or prepare ...c5 first. Keep a piece blockading e4 if White advances. Ne4 controls the center.</td>
+        </tr>
+        <tr>
+          <td>Plan D: Qc2 Battery</td>
+          <td>Plan A: ...Nh5!</td>
+          <td>Play ...Nh5 immediately to force the bishop exchange regardless. This is the strongest practical reply to Qc2 + Bg5.</td>
+        </tr>
+        <tr>
+          <td>Plan E: Botvinnik (Nge2)</td>
+          <td>Plan B: ...Ne4 + ...g6</td>
+          <td>After Nge2, play ...0-0 then ...Re8 then ...Ne4. If White plays f3, respond ...Ng6!? allowing e4 and meeting it with ...dxe4 fxe4 Be6 — sharp but prepared play.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <div class="callout-label">The Universal Principle</div>
+      <p>Regardless of what White plays, Black should always have Plans A and B in motion — the bishop should be developed actively (Plan A) and the Ne4 outpost should be a constant threat (Plan B). These two moves change the entire character of Black's position from passive to dynamic. Everything else is built on top of this foundation.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 06: PIECE ROLES FOR BLACK -->
+  <div class="section">
+    <div class="section-num">06 — Piece Roles</div>
+    <h2>Where Black's Pieces Belong</h2>
+
+    <p>Just as White has optimal squares for each piece, Black has natural destinations that apply across all plans. Knowing these squares by heart means you're never drifting aimlessly in the middlegame.</p>
+
+    <table class="principle-table">
+      <thead>
+        <tr>
+          <th>Piece</th>
+          <th>Ideal Square(s)</th>
+          <th>Why</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>♜ Rook 1</td>
+          <td>e8</td>
+          <td>Half-open e-file. Supports ...Ne4. Can swing to e7 or e6 for lateral play. Also useful on the e-file after ...f5 opens lines.</td>
+        </tr>
+        <tr>
+          <td>♜ Rook 2</td>
+          <td>c8</td>
+          <td>Contests the c-file against White's Rc1. Defends the c6 pawn from behind. Supports the ...c5 break.</td>
+        </tr>
+        <tr>
+          <td>♞ Knight 1</td>
+          <td>e4</td>
+          <td>Black's most powerful outpost. Controls f2, d2, g3, c3. Enables ...f5. Trades favorably for White's active bishop.</td>
+        </tr>
+        <tr>
+          <td>♞ Knight 2</td>
+          <td>f6 or d7</td>
+          <td>f6 is the standard active square. d7 is the passive but flexible square — supports d5 and enables knight rerouting to b6, f8, or e5 (after exchanges).</td>
+        </tr>
+        <tr>
+          <td>♝ Light-Squared Bishop</td>
+          <td>f5, g4, or b7</td>
+          <td>The "bad" bishop must escape the pawn chain. f5 is clean and active. g4 pins the knight. b7 (via ...b6) is the fianchetto option for long diagonal pressure.</td>
+        </tr>
+        <tr>
+          <td>♝ Dark-Squared Bishop</td>
+          <td>e7 (then active)</td>
+          <td>Starts on e7. After ...Nh5 forces the exchange of White's Bg5, this bishop is removed. When it's still on e7, it supports the center and enables the ...Ne4 defense.</td>
+        </tr>
+        <tr>
+          <td>♛ Queen</td>
+          <td>e7, d6, or f6</td>
+          <td>After ...Nh5 Bxe7 Qxe7, the queen on e7 is well-placed. d6 activates the queen toward the h2 pawn and kingside. f6 supports ...f5 kingside expansion.</td>
+        </tr>
+        <tr>
+          <td>♚ King</td>
+          <td>g8 (castled)</td>
+          <td>Castle early. If White castles queenside, consider keeping the king central or castling queenside yourself for mutual attacking chances.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 07: OPENING ROUTES FOR BLACK -->
+  <div class="section">
+    <div class="section-num">07 — How Black Enters the Structure</div>
+    <h2>Black's Opening Routes to the Carlsbad</h2>
+
+    <p>Black can reach the Carlsbad from several openings. Unlike White who chooses when to exchange with cxd5, Black is often <em>reacting</em> to White's exchange — which means knowing this structure as Black allows you to be calm and prepared when White steers there.</p>
+
+    <div class="plan-section" data-num="1" style="margin-top:28px;">
+      <h3>Via the QGD (Queen's Gambit Declined)</h3>
+      <span class="plan-tag">♟ The Classic Black Route</span>
+      <p>The most common entry. Black plays ...d5 and ...e6, and White plays cxd5. Black recaptures ...exd5 and the Carlsbad arises. Black's preparation from here is exactly what this guide covers.</p>
+      <div class="moves">
+        <span class="move-num">1.</span><span class="move-w">d4</span> <span class="move-b">d5</span>
+        <span class="move-num">2.</span><span class="move-w">c4</span> <span class="move-b">e6</span>
+        <span class="move-num">3.</span><span class="move-w">Nc3</span> <span class="move-b">Nf6</span>
+        <span class="move-num">4.</span><span class="move-w">cxd5</span> <span class="move-b">exd5 ←</span>
+        <span class="move-note"> ← Carlsbad immediately established</span>
+      </div>
+      <p>Note: Black can delay ...c6 and instead play ...Be7 first before ...c6. This limits White's options because after 3...Be7 and 4.cxd5 exd5 5.Bf4, White can no longer play Bg5 (the bishop went to f4 instead). This is a subtle move order trick that avoids the Bg5 systems entirely.</p>
+    </div>
+
+    <div class="plan-section" data-num="2" style="margin-top:20px;">
+      <h3>Via the Anti-London Setup (...Bd6 Move Order)</h3>
+      <span class="plan-tag">♟ Your Specific Black Repertoire Route</span>
+      <p>In your Anti-London setup (1.d4 d5 2.Bf4 Nf6 3.e3 c5), when play continues with exchanges leading to the Carlsbad skeleton, you reach a version where the dark-squared bishops are often traded. Your ...Bd6 invites Bxd6 Qxd6, and the queen on d6 is active pointing at h2.</p>
+      <div class="moves">
+        <span class="move-num">1.</span><span class="move-w">d4</span> <span class="move-b">d5</span>
+        <span class="move-num">2.</span><span class="move-w">Bf4</span> <span class="move-b">Nf6</span>
+        <span class="move-num">3.</span><span class="move-w">e3</span> <span class="move-b">c5</span>
+        <span class="move-num">4.</span><span class="move-w">c3</span> <span class="move-b">Nc6</span>
+        <span class="move-num">5.</span><span class="move-w">Nd2</span> <span class="move-b">e6</span>
+        <span class="move-num">6.</span><span class="move-w">Bd3</span> <span class="move-b">Bd6 ←</span>
+        <span class="move-note"> ← Inviting Bxd6 Qxd6 — queen on d6 is active</span>
+        <span class="move-num">7.</span><span class="move-w">Bxd6</span> <span class="move-b">Qxd6</span>
+        <span class="move-num">8.</span><span class="move-w">Nf3</span> <span class="move-b">cxd4 ←</span>
+        <span class="move-note"> ← Black initiates the exchange → Carlsbad</span>
+      </div>
+      <p>Specific advantage for Black here: after Bxd6 Qxd6, Black's queen is very active on d6 targeting h2 and the e-file. White's queenside minority attack is harder to execute because Black's piece activity compensates. Your ...Qb6 weapon (from the Anti-London 2.Bf4 Nf6 3.e3 c5 4.c3 Qb6 line) is a separate Anti-London idea that may avoid the Carlsbad entirely — know both paths.</p>
+    </div>
+
+    <div class="plan-section" data-num="3" style="margin-top:20px;">
+      <h3>Via the Semi-Slav (c6 + e6 Setup)</h3>
+      <span class="plan-tag">♟ When White Plays cxd5</span>
+      <p>In Semi-Slav positions where Black has both ...c6 and ...e6, White can play cxd5 at any point. If Black recaptures ...exd5 (instead of ...cxd5 which gives a symmetric Exchange Slav), the Carlsbad arises. Black should be prepared for this.</p>
+      <div class="moves">
+        <span class="move-num">1.</span><span class="move-w">d4</span> <span class="move-b">d5</span>
+        <span class="move-num">2.</span><span class="move-w">c4</span> <span class="move-b">c6</span>
+        <span class="move-num">3.</span><span class="move-w">Nc3</span> <span class="move-b">Nf6</span>
+        <span class="move-num">4.</span><span class="move-w">Nf3</span> <span class="move-b">e6</span>
+        <span class="move-num">5.</span><span class="move-w">cxd5</span> <span class="move-b">exd5 ←</span>
+        <span class="move-note"> ← Carlsbad. Black chose ...exd5 over ...cxd5 to avoid the symmetric Exchange Slav.</span>
+      </div>
+      <p>Key choice: ...exd5 gives the Carlsbad (asymmetric, richer, Black needs to know these plans); ...cxd5 gives the Exchange Slav (symmetric, quieter, different plans). If you're comfortable with the Carlsbad, ...exd5 is often the stronger choice.</p>
+    </div>
+
+    <div class="plan-section" data-num="4" style="margin-top:20px;">
+      <h3>Via the Nimzo-Indian</h3>
+      <span class="plan-tag">♞ When Black Has the Bishop Pair Compensation</span>
+      <p>After 1.d4 Nf6 2.c4 e6 3.Nc3 Bb4 4.e3 0-0 5.Bd3 d5, if White plays cxd5, the Carlsbad arises but with a key difference: Black has traded the dark-squared bishop for a knight, giving White doubled pawns in some lines. When this trade happens, Black often has the bishop pair temporarily before White recaptures, and the resulting Carlsbad is slightly different — White may have the bishop pair (if Bxc3 was played), changing the strategic balance.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 08: COMMON MISTAKES -->
+  <div class="section">
+    <div class="section-num">08 — Watch Out</div>
+    <h2>Common Mistakes Black Makes</h2>
+
+    <div class="callout warning" style="margin-bottom:18px;">
+      <div class="callout-label">Mistake 1 — Passive Development Leaving the Bishop on c8</div>
+      <p>Playing ...Nf6, ...Be7, ...0-0, ...Re8 and then not developing the c8-bishop for 10+ moves. The bishop stays passively on c8 or never finds an active square. This is the most common reason Black loses the Carlsbad. Develop the bishop to f5, g4, or b7 — make it a priority from move 1.</p>
+    </div>
+
+    <div class="callout warning" style="margin-bottom:18px;">
+      <div class="callout-label">Mistake 2 — Waiting for White to Attack Before Counterplaying</div>
+      <p>Defending against the minority attack by moving pieces back and forth, then being surprised when White creates the c6 weakness. Black must have their own plan already in motion <em>while</em> White is still setting up b4. ...a5, ...Nb6, or ...Ne4 should all be developed as preparation, not reactions.</p>
+    </div>
+
+    <div class="callout warning" style="margin-bottom:18px;">
+      <div class="callout-label">Mistake 3 — Allowing White's Ne5 Without Challenge</div>
+      <p>Letting White plant a knight on e5 without immediately playing ...Nxe5 or challenging it with ...f6. An unchallenged Ne5 gives White enormous central and kingside pressure. The moment White plays Ne5, evaluate ...Nxe5 dxe5 followed by ...f6 or ...Nd7 to dislodge the knight. Don't just ignore it.</p>
+    </div>
+
+    <div class="callout warning" style="margin-bottom:18px;">
+      <div class="callout-label">Mistake 4 — Playing ...c5 When Pieces Are Passive</div>
+      <p>Pushing ...c5 before your pieces are coordinated leads to an IQP that becomes a weakness rather than an asset. The IQP at c5 requires active piece play to be viable. If your bishop is on e7, your rooks are on d8/f8, and your knight is on d7, don't push ...c5 yet. Activate first.</p>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-label">Mistake 5 — Trading All Pieces in a Passive Position</div>
+      <p>When behind or in a passive position, Black sometimes simplifies by trading pieces to reach an endgame. This is almost always wrong in the Carlsbad — the c6 pawn weakness only gets worse in the endgame with fewer pieces to compensate. Keep pieces on the board when defending; keep pieces on the board when counterattacking. The Carlsbad endgame with a weak c6 pawn is often strategically lost for Black.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 09: DECISION FLOWCHART -->
+  <div class="section">
+    <div class="section-num">09 — Quick Reference</div>
+    <h2>Black's Decision Flowchart</h2>
+
+    <p>Use these questions in order during your games to identify which plan to execute. The answers should eventually become automatic — you're reading the position and committing to a plan within the first 5–10 moves of the middlegame.</p>
+
+    <table class="response-table">
+      <thead>
+        <tr>
+          <th>Question</th>
+          <th>Answer</th>
+          <th>Plan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Is my light-squared bishop still on c8?</td>
+          <td>Yes</td>
+          <td>Plan A: Develop it to f5 or g4 immediately. This is always the first priority.</td>
+        </tr>
+        <tr>
+          <td>Is White playing Bg5? Has White played Qc2?</td>
+          <td>Yes</td>
+          <td>Plan A: Play ...Nh5! to force Bxe7 Qxe7. Don't let White keep Bg5 long-term.</td>
+        </tr>
+        <tr>
+          <td>Is White setting up b4 (Rb1, Qc2)?</td>
+          <td>Yes, early</td>
+          <td>Plan C: Play ...a5 or ...Nb6 immediately to disrupt or redirect the minority attack.</td>
+        </tr>
+        <tr>
+          <td>Has White already played b5 and created c6 weakness?</td>
+          <td>Yes</td>
+          <td>Plan C + D: ...Nb6 defends actively, or launch ...f5...g5 counterattack before White exploits c6.</td>
+        </tr>
+        <tr>
+          <td>Is White's Ne5 on the board?</td>
+          <td>Yes</td>
+          <td>Play ...Nxe5 immediately! Then ...f6 or ...Nd7. Never ignore Ne5.</td>
+        </tr>
+        <tr>
+          <td>Is the Ne4 outpost available and safe?</td>
+          <td>Yes</td>
+          <td>Plan B: Play ...Ne4. Then build on it with ...f5, ...Re8, and potentially ...g5.</td>
+        </tr>
+        <tr>
+          <td>Is White overcommitted to the queenside?</td>
+          <td>Yes</td>
+          <td>Plan D: Launch kingside storm with ...g5...f5...f4. Time it when White's king is exposed.</td>
+        </tr>
+        <tr>
+          <td>Are my pieces well-coordinated and active?</td>
+          <td>Yes</td>
+          <td>Plan E: Consider ...c5 break to dissolve structure and create IQP dynamic play.</td>
+        </tr>
+        <tr>
+          <td>Unsure — no obvious plan?</td>
+          <td>Always</td>
+          <td>Default: Develop bishop actively (Plan A), place knight on e4 (Plan B), put rooks on c8 and e8. Build before deciding.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 10: AGAINST QC2 + NGE2 -->
+  <div class="section">
+    <div class="section-num">10 — Modern Theory</div>
+    <h2>Handling White's Qc2 + Nge2 Systems</h2>
+
+    <p>White's two modern refinements — Qc2 (Plan D) and Nge2 (Plan E from the White guide) — require specific Black responses that are slightly different from the classical lines. This section covers exactly what to do against these modern setups, which you'll face regularly in tournament play.</p>
+
+    <div class="plan-section" data-num="Qc2" style="margin-top:28px; border-top: 3px solid var(--amber);">
+      <h3 style="color:var(--amber);">Against White's 8.Qc2</h3>
+      <span class="plan-tag" style="color:var(--amber);">♛ The Critical Modern Line</span>
+
+      <p>After 1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.cxd5 exd5 5.Bg5 c6 6.e3 Be7 7.Bd3 Nbd7 8.Qc2, White is threatening to play Nge2 (preventing ...Ne4) and build the Qc2 + Bd3 battery. Black's best responses:</p>
+
+      <h4>Primary Response: 8...Nh5! (Best)</h4>
+      <p>This is the strongest move. The knight retreats to h5, forcing White to exchange the dark-squared bishops: 9.Bxe7 Qxe7. Black has achieved the bishop exchange and now has the queen actively placed on e7. The h5 knight will reroute to f6 or g7–f5 in the coming moves.</p>
+
+      <div class="moves">
+        <span class="move-num">8.</span><span class="move-w">Qc2</span> <span class="move-b">Nh5! ←</span>
+        <span class="move-note"> ← Forces bishop exchange. Black's best.</span>
+        <span class="move-num">9.</span><span class="move-w">Bxe7</span> <span class="move-b">Qxe7</span>
+        <span class="move-num">10.</span><span class="move-w">Nge2</span> <span class="move-b">g6!</span>
+        <span class="move-note"> ← Flexible. Prepares ...Ng7-f5 rerouting the h5 knight</span>
+      </div>
+
+      <h4>Secondary Response: 8...0-0 then ...Re8 and ...Ne4</h4>
+      <p>Castle first, play ...Re8, then ...Ne4. The Qc2 was specifically designed to stop this, but if White plays Nge2 next, Black can still play ...Ne4 — just White's response is different. After 9.Nge2 Ne4 10.Bxe7 Qxe7 11.Nxe4 dxe4 12.Bc4, Black has the e4 pawn and a more dynamic position. Both sides have chances.</p>
+
+      <div class="callout amber">
+        <div class="callout-label">Don't Play ...Ne4 Immediately After Qc2</div>
+        <p>After 8.Qc2, playing 8...Ne4 immediately runs into 9.Bxe7 Qxe7 10.Nxe4 dxe4 11.Bxe4 where White has very smooth development and the queen on c2 perfectly placed. ...Ne4 works better after castling and playing ...Re8 first, when the rook on e8 creates more pressure after the knight exchange.</p>
+      </div>
+    </div>
+
+    <div class="plan-section" data-num="Ne2" style="margin-top:20px;">
+      <h3>Against White's 9.Nge2 (Botvinnik Setup)</h3>
+      <span class="plan-tag">♘ Handling the f3–e4 Threat</span>
+
+      <p>After 8.Qc2 0-0 9.Nge2, White is preparing to play f3 followed by e4 (the Botvinnik pawn roller). Black must be ready to meet this or redirect the game before it happens.</p>
+
+      <h4>Option 1: ...Nf8 then ...Ne6 (Modern)</h4>
+      <p>A flexible retreat: ...Nf8–g6 or ...Nf8–e6 vacates d7 and prepares counterplay. If White plays f3 and e4, Black answers ...dxe4 fxe4 ...Be6, reaching sharp positions where both sides have chances. This line requires preparation but is very playable.</p>
+
+      <div class="moves">
+        <span class="move-num">9.</span><span class="move-w">Nge2</span> <span class="move-b">Nf8!</span>
+        <span class="move-note"> ← Flexible rerouting. Waiting to see White's plan.</span>
+        <span class="move-num">10.</span><span class="move-w">f3</span> <span class="move-b">Ng6</span>
+        <span class="move-num">11.</span><span class="move-w">e4</span> <span class="move-b">dxe4</span>
+        <span class="move-num">12.</span><span class="move-w">fxe4</span> <span class="move-b">Be6</span>
+        <span class="move-note"> ← Sharp. Both sides have active play.</span>
+      </div>
+
+      <h4>Option 2: ...Re8 and Classical Play</h4>
+      <p>Simply place ...Re8 and continue development. If White plays f3, Black can answer ...Ne4 (if available) or ...Bf5. The rook on e8 is useful in almost every line and never a mistake. White's f3–e4 plan takes several moves to execute — Black has time to set up.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 11: YOUTUBE -->
+  <div class="section" style="padding-bottom: 56px;">
+    <div class="section-num">11 — Study Resources</div>
+    <h2>Recommended YouTube Resources for Black</h2>
+
+    <p style="color:var(--cream-dim); margin-bottom:28px;">The same resources from the White guide apply here — particularly GM Sune Berg Hansen's series, which covers both sides in depth. The videos below are specifically valuable for the Black perspective.</p>
+
+    <!-- PHASE 1 -->
+    <div style="margin-bottom:10px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.2em; color:var(--blue-bright); text-transform:uppercase; display:flex; align-items:center; gap:10px;">
+      Phase 1 — Start Here
+      <div style="flex:1; height:1px; background:var(--border);"></div>
+    </div>
+
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:20px 22px; margin-bottom:14px; display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:start;">
+      <div style="font-size:20px; padding-top:2px;">🎯</div>
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:17px; color:var(--cream); margin-bottom:4px;">GM Sune Berg Hansen — "Blacks options vs the Minority Attack in the Carlsbad" (Part 6)</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--blue-dim); margin-bottom:6px;"><a href="https://www.youtube.com/watch?v=xKvqma4URRw" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:3px;opacity:0.85;">youtube.com/watch?v=xKvqma4URRw</a> · Part of the 17-video playlist</div>
+        <p style="font-size:14px; color:var(--cream-dim); line-height:1.5; margin:0;">Hansen directly covers Black's three main options against the minority attack: accepting the weakness, fighting with ...a5/...b5, and the ...c5 counter. Essential viewing.</p>
+      </div>
+      <span class="badge badge-primary">⭐ MUST</span>
+    </div>
+
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:20px 22px; margin-bottom:14px; display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:start;">
+      <div style="font-size:20px; padding-top:2px;">📖</div>
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:17px; color:var(--cream); margin-bottom:4px;">GM Sune Berg Hansen — "The Carlsbad Pawn Structure for Black – What to do against the f3–e4 plan?"</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--blue-dim); margin-bottom:6px;"><a href="https://www.youtube.com/watch?v=tIMeBPU24V8" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:3px;opacity:0.85;">youtube.com/watch?v=tIMeBPU24V8</a> · Part IX of Carlsbad series</div>
+        <p style="font-size:14px; color:var(--cream-dim); line-height:1.5; margin:0;">Directly covers Black's response to White's aggressive f3–e4 system (Botvinnik Plan E). Exactly what you need for the modern theory section of this guide.</p>
+      </div>
+      <span class="badge badge-primary">⭐ MUST</span>
+    </div>
+
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:20px 22px; margin-bottom:14px; display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:start;">
+      <div style="font-size:20px; padding-top:2px;">📺</div>
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:17px; color:var(--cream); margin-bottom:4px;">GM Sune Berg Hansen — "Carlsbad Structure – Aggressive Plans for Black" (Part VIII)</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--blue-dim); margin-bottom:6px;"><a href="https://www.youtube.com/watch?v=_6RbmXlYzis" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:3px;opacity:0.85;">youtube.com/watch?v=_6RbmXlYzis</a> · Defensive minority attack counterplay</div>
+        <p style="font-size:14px; color:var(--cream-dim); line-height:1.5; margin:0;">Black's attacking chances on the kingside while defending the minority attack. Covers the ...g5 storm and kingside counterplay ideas from Plan D in this guide.</p>
+      </div>
+      <span class="badge badge-primary">⭐ MUST</span>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div style="margin:28px 0 10px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.2em; color:var(--blue-bright); text-transform:uppercase; display:flex; align-items:center; gap:10px;">
+      Phase 2 — Build Your Toolkit
+      <div style="flex:1; height:1px; background:var(--border);"></div>
+    </div>
+
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:20px 22px; margin-bottom:14px; display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:start;">
+      <div style="font-size:20px; padding-top:2px;">⚔️</div>
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:17px; color:var(--cream); margin-bottom:4px;">TheChessWorld — "5 Must Know Defensive Strategies in the Carlsbad Structure"</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--blue-dim); margin-bottom:6px;">Search: "5 defensive strategies Carlsbad TheChessWorld" · Article + video</div>
+        <p style="font-size:14px; color:var(--cream-dim); line-height:1.5; margin:0;">Covers all five of Black's queenside defensive ideas against the minority attack in practical detail. Directly maps to Plan C in this guide.</p>
+      </div>
+      <span class="badge badge-high">HIGH</span>
+    </div>
+
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:20px 22px; margin-bottom:14px; display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:start;">
+      <div style="font-size:20px; padding-top:2px;">♟</div>
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:17px; color:var(--cream); margin-bottom:4px;">GM Naroditsky — "What Is the Carlsbad??" (Sensei Speedrun)</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--blue-dim); margin-bottom:6px;"><a href="https://www.youtube.com/watch?v=d6tZXETpqT0" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:3px;opacity:0.85;">youtube.com/watch?v=d6tZXETpqT0</a> · ~37 min (covers both sides)</div>
+        <p style="font-size:14px; color:var(--cream-dim); line-height:1.5; margin:0;">Danya explains both White's and Black's thinking in real time. Watching it with this Black guide in hand gives you both perspectives simultaneously — highly recommended.</p>
+      </div>
+      <span class="badge badge-high">HIGH</span>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div style="margin:28px 0 10px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.2em; color:var(--blue-bright); text-transform:uppercase; display:flex; align-items:center; gap:10px;">
+      Phase 3 — Deep Study
+      <div style="flex:1; height:1px; background:var(--border);"></div>
+    </div>
+
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:20px 22px; margin-bottom:14px; display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:start;">
+      <div style="font-size:20px; padding-top:2px;">🏆</div>
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:17px; color:var(--cream); margin-bottom:4px;">GM Sune Berg Hansen — Full Carlsbad Series (17 videos) — Black Episodes</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--blue-dim); margin-bottom:6px;"><a href="https://www.youtube.com/playlist?list=PLdD20DTO0dxJS3c3LIluB0G8QgywwUEiP" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:3px;opacity:0.85;">youtube.com/playlist?list=PLdD20DTO0dxJS3c3LIluB0G8QgywwUEiP</a> · Focus on parts VI–IX</div>
+        <p style="font-size:14px; color:var(--cream-dim); line-height:1.5; margin:0;">The gold-standard series. Parts VI through IX focus specifically on Black's plans. The full playlist covers both sides in depth — watch the Black-specific parts first, then go back to the whole series for full context.</p>
+      </div>
+      <span class="badge badge-advanced">LONG-TERM</span>
+    </div>
+
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:20px 22px; margin-bottom:14px; display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:start;">
+      <div style="font-size:20px; padding-top:2px;">📚</div>
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:17px; color:var(--cream); margin-bottom:4px;">IM Kassa Korley — "Dissecting the Carlsbad" (US Chess School)</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--blue-dim); margin-bottom:6px;">Search: "Kassa Korley Dissecting Carlsbad USCS" · ~90 min</div>
+        <p style="font-size:14px; color:var(--cream-dim); line-height:1.5; margin:0;">Deep instructional session covering several Carlsbad games from both perspectives. Korley is an excellent teacher for improving players — his level of explanation matches your current development stage well.</p>
+      </div>
+      <span class="badge badge-advanced">LONG-TERM</span>
+    </div>
+
+    <!-- SUGGESTED SEQUENCE -->
+    <div style="margin-top:36px;">
+      <div style="margin-bottom:14px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:0.15em; color:var(--blue-bright); text-transform:uppercase;">Suggested Study Sequence — Black</div>
+      <table class="principle-table">
+        <thead>
+          <tr><th>#</th><th>Resource</th><th>Priority</th><th>When</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Hansen Part VI — Black vs Minority Attack</td><td><span class="badge badge-primary" style="font-size:10px;">⭐ MUST</span></td><td>Session 1</td></tr>
+          <tr><td>2</td><td>Hansen Part VIII — Aggressive Black Plans</td><td><span class="badge badge-primary" style="font-size:10px;">⭐ MUST</span></td><td>Session 1</td></tr>
+          <tr><td>3</td><td>Hansen Part IX — Against f3–e4</td><td><span class="badge badge-primary" style="font-size:10px;">⭐ MUST</span></td><td>Session 2</td></tr>
+          <tr><td>4</td><td>5 Defensive Strategies (TheChessWorld)</td><td><span class="badge badge-high" style="font-size:10px;">HIGH</span></td><td>Session 2</td></tr>
+          <tr><td>5</td><td>Naroditsky "What Is the Carlsbad?" (both sides)</td><td><span class="badge badge-high" style="font-size:10px;">HIGH</span></td><td>Session 3</td></tr>
+          <tr><td>6</td><td>Hansen Full Series (all 17 videos)</td><td><span class="badge badge-advanced" style="font-size:10px;">DEEP</span></td><td>Ongoing</td></tr>
+          <tr><td>7</td><td>Korley Dissecting the Carlsbad (90 min)</td><td><span class="badge badge-advanced" style="font-size:10px;">DEEP</span></td><td>Ongoing</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip" style="margin-top:28px;">
+      <div class="callout-label">How to Use Both Guides Together</div>
+      <p>Study the White guide and the Black guide in parallel — not in isolation. Understanding White's five plans makes Black's responses obvious, and understanding Black's five counterplans tells you what you need to prevent as White. The Carlsbad is a dialogue between both players; the deeper you understand both sides, the stronger your game becomes in either color. Use both guides as reference during your Sune Berg Hansen video sessions.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    ♟ Carlsbad Structure Guide · Black's Perspective · QGD · Anti-London · Semi-Slav
+  </div>
+
+</div>
+<!-- BOARD RENDERING SCRIPT — Lichess cburnett pieces -->
+<script>
+  const SQ_B = 64;
+  const SET_B = 'cburnett';
+
+  function pieceUrlB(color, type) {
+    return `https://lichess1.org/assets/piece/${SET_B}/${color}${type}.svg`;
+  }
+
+  // Carlsbad — Black's perspective highlights
+  const carlsbadPosB = {
+    'a8':['b','R'],'b8':null,     'c8':['b','B'],'d8':['b','Q'],
+    'e8':['b','K'],'f8':['b','B'],'g8':null,     'h8':['b','R'],
+    'a7':['b','P'],'b7':['b','P'],'c7':null,     'd7':['b','N'],
+    'e7':null,     'f7':['b','P'],'g7':['b','P'],'h7':['b','P'],
+    'a6':null,'b6':null,'c6':['b','P'],'d6':['b','N'],
+    'e6':null,'f6':null,'g6':null,'h6':null,
+    'a5':null,'b5':null,'c5':null,'d5':['b','P'],
+    'e5':null,'f5':null,'g5':null,'h5':null,
+    'a4':null,'b4':null,'c4':null,'d4':['w','P'],
+    'e4':null,'f4':null,'g4':null,'h4':null,
+    'a3':null,'b3':null,'c3':['w','N'],'d3':['w','B'],
+    'e3':['w','P'],'f3':['w','N'],'g3':null,'h3':null,
+    'a2':['w','P'],'b2':['w','P'],'c2':null,'d2':null,
+    'e2':null,'f2':['w','P'],'g2':['w','P'],'h2':['w','P'],
+    'a1':['w','R'],'b1':null,'c1':['w','R'],'d1':['w','Q'],
+    'e1':null,'f1':null,'g1':['w','K'],'h1':null,
+  };
+
+  // Blue = Black's resources/targets  Red = White's threats
+  const hlBlue = ['e4','c8','e8'];   // Ne4 outpost + rook destinations
+  const hlRed  = ['b2','d4','c5'];   // White's minority pawns + c5 outpost
+
+  function buildBoardB(containerId, pos, hlB, hlR, legendHTML) {
+    const wrap = document.getElementById(containerId);
+    if (!wrap) return;
+    wrap.style.display = 'flex';
+    wrap.style.flexDirection = 'column';
+    wrap.style.alignItems = 'flex-start';
+
+    const files = ['a','b','c','d','e','f','g','h'];
+    const ranks = ['8','7','6','5','4','3','2','1'];
+
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;flex-direction:row;align-items:flex-start;';
+
+    const rl = document.createElement('div');
+    rl.style.cssText = 'display:flex;flex-direction:column;padding-right:5px;';
+    ranks.forEach(r => {
+      const lbl = document.createElement('div');
+      lbl.style.cssText = `height:${SQ_B}px;display:flex;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8d97ad;`;
+      lbl.textContent = r;
+      rl.appendChild(lbl);
+    });
+
+    const boardCol = document.createElement('div');
+    boardCol.style.cssText = 'display:flex;flex-direction:column;';
+
+    const grid = document.createElement('div');
+    grid.style.cssText = `display:grid;grid-template-columns:repeat(8,${SQ_B}px);grid-template-rows:repeat(8,${SQ_B}px);border:2px solid #4a7fc1;box-shadow:0 10px 36px rgba(0,0,0,0.7);`;
+
+    ranks.forEach((rank, ri) => {
+      files.forEach((file, fi) => {
+        const key = file + rank;
+        const sq = document.createElement('div');
+        const light = (ri + fi) % 2 === 0;
+
+        let bg = light ? '#f0d9b5' : '#b58863';
+        if (hlB && hlB.includes(key)) bg = light ? 'rgba(70,140,200,0.5)' : 'rgba(55,110,170,0.58)';
+        if (hlR && hlR.includes(key)) bg = light ? 'rgba(200,80,70,0.48)' : 'rgba(165,55,50,0.55)';
+
+        sq.style.cssText = `width:${SQ_B}px;height:${SQ_B}px;display:flex;align-items:center;justify-content:center;background:${bg};position:relative;`;
+
+        const piece = pos[key];
+        if (piece) {
+          const img = document.createElement('img');
+          img.src = pieceUrlB(piece[0], piece[1]);
+          img.style.cssText = `width:${SQ_B-4}px;height:${SQ_B-4}px;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.5));pointer-events:none;`;
+          sq.appendChild(img);
+        }
+        grid.appendChild(sq);
+      });
+    });
+
+    const fl = document.createElement('div');
+    fl.style.cssText = 'display:flex;padding-top:4px;';
+    files.forEach(f => {
+      const lbl = document.createElement('div');
+      lbl.style.cssText = `width:${SQ_B}px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8d97ad;`;
+      lbl.textContent = f;
+      fl.appendChild(lbl);
+    });
+
+    boardCol.appendChild(grid);
+    boardCol.appendChild(fl);
+    row.appendChild(rl);
+    row.appendChild(boardCol);
+    wrap.appendChild(row);
+
+    if (legendHTML) {
+      const leg = document.createElement('div');
+      leg.style.cssText = 'margin-top:10px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:#8d97ad;display:flex;gap:20px;flex-wrap:wrap;';
+      leg.innerHTML = legendHTML;
+      wrap.appendChild(leg);
+    }
+  }
+
+  buildBoardB(
+    'board-carlsbad-black',
+    carlsbadPosB,
+    hlBlue,
+    hlRed,
+    '<span style="color:#7ab3f0">■ Black resources (Ne4, Rc8, Re8)</span><span style="color:#c05a4a">■ White threats (b2 minority, d4, c5)</span>'
+  );
+</script>
+
+</body>
+</html>

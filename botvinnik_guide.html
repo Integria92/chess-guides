@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Botvinnik System — Iron English Field Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #2d333b;
+    --teal: #3fb0ac;
+    --teal-dim: #1f6e6b;
+    --teal-bright: #6fd4d0;
+    --cream: #e6edf3;
+    --cream-dim: #8b949e;
+    --amber: #e3b341;
+    --amber-dim: #8a6a1f;
+    --red: #c0392b;
+    --green: #3dba6f;
+    --green-dim: #1a5c38;
+    --white-sq: #f0d9b5;
+    --dark-sq: #b58863;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.82;
+    min-height: 100vh;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--surface);
+    border-bottom: 2px solid var(--teal);
+    padding: 52px 0 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .masthead::before {
+    content: '♘';
+    position: absolute;
+    font-size: 360px;
+    color: rgba(63,176,172,0.05);
+    left: -80px; top: -80px;
+    line-height: 1; pointer-events: none;
+  }
+  .masthead::after {
+    content: '♙';
+    position: absolute;
+    font-size: 280px;
+    color: rgba(63,176,172,0.05);
+    right: -40px; bottom: -90px;
+    line-height: 1; pointer-events: none;
+  }
+  .masthead-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--teal-bright); margin-bottom: 16px;
+    position: relative; z-index: 1;
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px,6vw,62px);
+    font-weight: 900; color: var(--cream);
+    line-height: 1.1; position: relative; z-index: 1;
+  }
+  .masthead h1 em { color: var(--teal-bright); font-style: italic; }
+  .masthead-sub {
+    margin-top: 14px; font-size: 17px;
+    color: var(--cream-dim); font-style: italic;
+    position: relative; z-index: 1;
+  }
+  .masthead-meta {
+    margin-top: 22px; display: flex; justify-content: center;
+    gap: 32px; font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.1em;
+    color: var(--teal-bright); opacity: 0.75;
+    position: relative; z-index: 1; flex-wrap: wrap;
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 880px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── SECTIONS ── */
+  .section { padding: 56px 0 0; }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--teal-bright); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-num::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px,4vw,36px); font-weight: 700;
+    color: var(--cream); line-height: 1.2; margin-bottom: 24px;
+  }
+  .section p { color: var(--cream-dim); margin-bottom: 16px; font-size: 17px; }
+  .section p strong { color: var(--cream); font-weight: 600; }
+  .section p em { color: var(--teal-bright); font-style: italic; }
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 52px 0 0; }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    background: var(--surface2); border-left: 3px solid var(--teal);
+    padding: 20px 24px; margin: 28px 0; border-radius: 0 6px 6px 0;
+  }
+  .callout-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--teal-bright); margin-bottom: 8px;
+  }
+  .callout p { margin: 0; font-style: italic; font-size: 16px; }
+  .callout.warning { border-left-color: var(--red); }
+  .callout.warning .callout-label { color: var(--red); }
+  .callout.tip { border-left-color: var(--green); }
+  .callout.tip .callout-label { color: var(--green); }
+  .callout.amber { border-left-color: var(--amber); }
+  .callout.amber .callout-label { color: var(--amber); }
+
+  /* ── RULE CARDS ── */
+  .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  .rule-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 22px 20px;
+  }
+  .rule-card.yes { border-top: 3px solid var(--green); }
+  .rule-card.no  { border-top: 3px solid var(--red); }
+  .rule-card h3 {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .rule-card.yes h3 { color: var(--green); }
+  .rule-card.no  h3 { color: var(--red); }
+  .rule-card p { font-size: 15px; color: var(--cream-dim); margin: 0; line-height: 1.65; }
+  .rule-card p strong { color: var(--cream); }
+
+  /* ── PLAN CARDS ── */
+  .plan-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 16px; margin: 24px 0; }
+  .plan-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-top: 3px solid var(--teal); padding: 22px 18px;
+    border-radius: 0 0 8px 8px;
+  }
+  .plan-card-icon { font-size: 26px; margin-bottom: 10px; }
+  .plan-card h3 { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--cream); margin-bottom: 8px; }
+  .plan-card p { font-size: 14px; color: var(--cream-dim); margin: 0; line-height: 1.6; }
+
+  /* ── PLAN DETAIL ── */
+  .plan-section {
+    margin-top: 40px; padding: 32px 28px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; position: relative;
+  }
+  .plan-section::before {
+    content: attr(data-num);
+    position: absolute; top: 18px; right: 22px;
+    font-family: 'Playfair Display', serif; font-size: 72px;
+    color: var(--border); font-weight: 900; line-height: 1;
+  }
+  .plan-section h3 { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--teal-bright); margin-bottom: 4px; }
+  .plan-section .plan-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.18em; color: var(--green); text-transform: uppercase;
+    margin-bottom: 16px; display: block;
+  }
+  .plan-section p { color: var(--cream-dim); margin-bottom: 14px; font-size: 16px; }
+  .plan-section p strong { color: var(--cream); }
+  .plan-section h4 { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--cream); margin: 20px 0 10px; }
+
+  /* ── MOVES ── */
+  .moves {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px 20px; margin: 14px 0;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    color: var(--cream-dim); line-height: 2;
+  }
+  .move-num { color: var(--teal-dim); }
+  .move-w { color: var(--cream-dim); }
+  .move-b { color: var(--teal-bright); font-weight: 500; }
+  .move-note { color: var(--green); font-style: italic; font-size: 12px; }
+  .move-key { color: var(--amber); font-weight: 700; }
+
+  /* ── STEP LIST ── */
+  .step-list { list-style: none; margin: 16px 0; counter-reset: steps; }
+  .step-list li {
+    counter-increment: steps; display: flex; gap: 16px;
+    margin-bottom: 14px; align-items: flex-start;
+    font-size: 15px; color: var(--cream-dim);
+  }
+  .step-list li::before {
+    content: counter(steps); min-width: 28px; height: 28px;
+    background: var(--teal); color: var(--bg);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .step-list li strong { color: var(--cream); }
+
+  /* ── TABLES ── */
+  .principle-table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px; }
+  .principle-table th {
+    background: var(--teal); color: var(--bg); padding: 10px 14px;
+    text-align: left; font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;
+  }
+  .principle-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--cream-dim); vertical-align: top; }
+  .principle-table tr:nth-child(even) td { background: var(--surface2); }
+  .principle-table td:first-child { color: var(--cream); font-weight: 600; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 1px 6px; border-radius: 3px; color: var(--teal-bright);
+  }
+
+  /* ── BOARD ── */
+  .board-wrap { margin: 32px 0; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .board-caption { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--teal-dim); letter-spacing: 0.05em; }
+
+  /* ── TWO BOARD LAYOUT ── */
+  .two-boards { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 32px 0; align-items: start; }
+  @media (max-width: 700px) { .two-boards { grid-template-columns: 1fr; } }
+
+  /* ── CHEATSHEET ── */
+  .cheat-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 14px; margin: 24px 0; }
+  .cheat-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 18px;
+  }
+  .cheat-card-head {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 10px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cheat-card-head.yes { color: var(--green); }
+  .cheat-card-head.no  { color: var(--red); }
+  .cheat-card-head.wait { color: var(--amber); }
+  .cheat-card p { font-size: 14px; color: var(--cream-dim); margin-bottom: 6px; line-height: 1.55; }
+  .cheat-card p:last-child { margin-bottom: 0; }
+  .cheat-card p strong { color: var(--cream); }
+
+  .footer {
+    margin-top: 72px; padding: 32px 0;
+    border-top: 1px solid var(--border); text-align: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--teal-dim); letter-spacing: 0.1em;
+  }
+
+  /* ── TRICKY MOVE TABLE ── */
+  .trick-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+  .trick-table th {
+    background: var(--surface2); color: var(--teal-bright);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    padding: 9px 12px; border: 1px solid var(--border); text-align: left;
+  }
+  .trick-table td { padding: 10px 12px; border: 1px solid var(--border); color: var(--cream-dim); vertical-align: top; }
+  .trick-table td:first-child { color: var(--teal-bright); font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .trick-table td:nth-child(2) { color: var(--amber); }
+  .trick-table tr:hover td { background: var(--surface2); }
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-label">Iron English Series · White's Weapon</div>
+  <h1>The <em>Botvinnik</em> System</h1>
+  <div class="masthead-sub">Iron English field guide — plans, conditions, tricky move orders, and at-the-board decisions</div>
+  <div class="masthead-meta">
+    <span>♘ Opening: 1.c4 English</span>
+    <span>◆ Side: White</span>
+    <span>♙ Pawn Chain: c4 + d3 + e4 + g3</span>
+    <span>♟ Knight: Nge2 NOT Nf3</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- SECTION 01: WHAT IS IT -->
+  <div class="section">
+    <div class="section-num">01 — Foundation</div>
+    <h2>What is the Botvinnik System?</h2>
+
+    <p>The Botvinnik System is a setup White builds in the English Opening, defined by a locked pawn center: <strong>c4 + d3 + e4 + g3</strong>. Pieces are arranged as Bg2 (fianchetto), Nc3, and — crucially — <strong>Nge2, not Nf3</strong>. That knight placement is the defining move of the entire system. Nf3 is a different opening; Nge2 is what makes this the Botvinnik.</p>
+
+    <p>The resulting structure looks like a <em>reversed King's Indian Defence</em> — White controls the center with pawns, keeps the position closed, and prepares a kingside attack or central expansion. Because it deploys against any Black g6 setup, it is a reliable weapon that handles an entire category of responses under one strategic framework.</p>
+
+    <div class="board-wrap">
+      <div id="board-botvinnik-core"></div>
+      <div class="board-caption">The Botvinnik Structure after 1.c4 e5 2.g3 Nc6 3.Nc3 g6 4.Bg2 Bg7 5.e4 d6 6.Nge2 Nge7 7.d3 0-0 8.0-0 — White's ideal setup.</div>
+    </div>
+
+    <div class="callout amber">
+      <div class="callout-label">The One Rule That Governs Everything</div>
+      <p>If Black plays <strong>...d5 at any point</strong> — do not push e4. That single pawn move collapses your entire center before it is built. When ...d5 appears, stop, switch plans, and play cxd5 instead. Everything else in the Botvinnik flows from understanding why this condition matters.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 02: THE TWO RULES -->
+  <div class="section">
+    <div class="section-num">02 — The Two Rules</div>
+    <h2>When to Build It — When to Stop</h2>
+
+    <div class="rule-grid">
+      <div class="rule-card yes">
+        <h3>✓ Rule 1 — Build It When</h3>
+        <p>Black fianchettoes on g7 <strong>and</strong> plays ...d6. The more closed Black's center, the more dangerous your e4 becomes. The dark squares around Black's king are your target.</p>
+      </div>
+      <div class="rule-card no">
+        <h3>✗ Rule 2 — Stop When</h3>
+        <p>Black plays <strong>...d5 at any point</strong>. Do not push e4. Respond with cxd5 and enter a reversed Grünfeld structure. Playing e4 into ...d5 is a fundamental structural error.</p>
+      </div>
+    </div>
+
+    <h2 style="margin-top:32px; font-size:24px;">The Three Conditions — All Must Be Met</h2>
+    <table class="principle-table">
+      <thead><tr><th>Condition</th><th>What to Look For</th><th>Why It Matters</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1. Black fianchettoes</td>
+          <td>g6 + Bg7 on the board</td>
+          <td>Your e4 targets the dark squares around a fianchettoed king. Without g7, the center is less meaningful.</td>
+        </tr>
+        <tr>
+          <td>2. Black plays ...d6 (not ...d5)</td>
+          <td>d6 confirms a closed center</td>
+          <td>d6 keeps the center locked. d5 challenges your e4 directly and breaks the whole system.</td>
+        </tr>
+        <tr>
+          <td>3. Black has NOT played ...d5</td>
+          <td>No Black pawn on d5</td>
+          <td>The Anti-Botvinnik trigger. If d5 appears at any moment, switch plans immediately.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 03: CORE STRUCTURE -->
+  <div class="section">
+    <div class="section-num">03 — Core Setup</div>
+    <h2>The Piece Configuration</h2>
+
+    <p>The Botvinnik setup is a complete system — every piece has a specific role. Know these squares by heart. Once the structure is built, your plans flow automatically from understanding why each piece is where it is.</p>
+
+    <table class="principle-table">
+      <thead><tr><th>Piece</th><th>Ideal Square</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>♙ Pawns</td><td>c4, d3, e4, g3</td><td>The locked pawn chain. c4 controls d5; e4 dominates the center; d3 supports e4; g3 supports the bishop and prepares castling.</td></tr>
+        <tr><td>♗ King's Bishop</td><td>g2 (fianchetto)</td><td>The bishop on g2 is the long-term strategic weapon — it controls the long diagonal and supports the center. Never exchange it passively.</td></tr>
+        <tr><td>♘ Queen's Knight</td><td>c3</td><td>Standard development. Supports e4 and d5. Will reroute to d5 as the star piece of the attack.</td></tr>
+        <tr><td>♘ King's Knight</td><td>e2 — NOT f3</td><td>The defining move. On e2 the knight clears f3 for a pawn, can reroute to g3/f4, and avoids blocking the g2 bishop's diagonal.</td></tr>
+        <tr><td>♔ King</td><td>g1 (castled)</td><td>Castle early. The Botvinnik is a strategic system — you need the king safe before committing to a kingside attack.</td></tr>
+        <tr><td>♖ Rooks</td><td>f1, d1 (later)</td><td>Rf1 supports the f4 advance. Rd1 supports the d4 break in Plan C (Maroczy transition).</td></tr>
+        <tr><td>♕ Queen</td><td>d2</td><td>Qd2 coordinates with Bh6 (bishop exchange plan) and sets up a battery aimed at h6/g5. Standard development in attacking lines.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 04: THE FOUR PLANS -->
+  <div class="section">
+    <div class="section-num">04 — Strategic Map</div>
+    <h2>White's Four Plans</h2>
+
+    <div class="plan-grid">
+      <div class="plan-card">
+        <div class="plan-card-icon">🔥</div>
+        <h3>Plan A — Kingside Attack</h3>
+        <p>Be3 → Qd2 → Bh6 (exchange the g7 bishop) → f4. Once Black's dark-square guardian is gone, f4–f5 cracks the position. White's sharpest weapon.</p>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-icon">♘</div>
+        <h3>Plan B — Nd5 Outpost</h3>
+        <p>Nc3 leaps to d5, attacking c7, controlling the center, supporting f4. Nearly always available and strong. Do this before committing to the kingside attack.</p>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-icon">♙</div>
+        <h3>Plan C — d4 Central Break</h3>
+        <p>When Black is passive, push d4 to enter a Maroczy Bind. White gets a dominant center and spatial advantage. Best when Black's pieces are awkwardly placed.</p>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-icon">♟♟</div>
+        <h3>Plan D — Queenside Expansion</h3>
+        <p>If Black plays ...a6, ...Rb8, ...b5 on the queenside, White responds with b4–a4–b5, fixing Black's queenside and restricting counterplay while building the kingside.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">Plan Priority</div>
+      <p>Plan B (Nd5) is almost always your first concrete move — it's immediately strong, makes the position concrete, and supports everything else. Once Nd5 is on the board, decide between Plan A (Bh6 → f4 attack) and Plan C (d4 Maroczy) based on Black's response.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 05: DEEP DIVES -->
+  <div class="section">
+    <div class="section-num">05 — Deep Dive</div>
+    <h2>Each Setup Explained</h2>
+
+    <!-- Setup 1: e5 Position -->
+    <div class="plan-section" data-num="1">
+      <h3>Setup 1 — The e5 Position</h3>
+      <span class="plan-tag">♙ Classic Botvinnik — Black plays ...Nc6 ...g6 ...d6 ...e5</span>
+
+      <p>This is the original Botvinnik scenario. Black's e5 pawn closes the center and the g7 bishop is blocked by its own d6 pawn — meaning it has less scope than in the c5 setup. This is the most favorable version for White.</p>
+
+      <div class="moves">
+        <span class="move-num">1.</span><span class="move-w">c4</span> <span class="move-b">e5</span>
+        <span class="move-num">2.</span><span class="move-w">g3</span> <span class="move-b">Nc6</span>
+        <span class="move-num">3.</span><span class="move-w">Nc3</span> <span class="move-b">g6</span>
+        <span class="move-num">4.</span><span class="move-w">Bg2</span> <span class="move-b">Bg7</span>
+        <span class="move-num">5.</span><span class="move-w">e4</span> <span class="move-b">d6</span>
+        <span class="move-num">6.</span><span class="move-w">Nge2 ←</span> <span class="move-b">Nge7</span>
+        <span class="move-num">7.</span><span class="move-w">d3</span> <span class="move-b">0-0</span>
+        <span class="move-num">8.</span><span class="move-w">0-0</span>
+        <span class="move-note"> ← Full Botvinnik structure achieved. Now: Nd5.</span>
+      </div>
+
+      <h4>Black's 6th Move Responses</h4>
+      <table class="trick-table">
+        <thead><tr><th>Black plays</th><th>White's key response</th><th>Critical line</th></tr></thead>
+        <tbody>
+          <tr><td>6...Nge7</td><td>7.d3 0-0 8.0-0 → Nd5</td><td>9.Nd5 Be6 10.Be3 Qd7 11.Qd2</td></tr>
+          <tr><td>6...Nf6</td><td>7.d3 0-0 8.0-0 Be6 9.Nd5</td><td>10.Bg5! punishing Qd7 — see Tactical Alert</td></tr>
+          <tr><td>6...f5</td><td>7.d3 Nf6 8.0-0 0-0 9.Nd5</td><td>9...Be6 10.Bg5 Qd7 11.Qd2 Nh5 12.exf5</td></tr>
+          <tr><td>6...h5</td><td>7.h4! immediately</td><td>7...Bg4 8.f3 Be6 9.d3 Qd7 10.Nd5</td></tr>
+          <tr><td>6...Be6</td><td>8.Nd5 — attacks c7, stops ...Bh3</td><td>8...Nce7 9.d4 c6 10.Ne3 Bh3 11.0-0</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout amber">
+        <div class="callout-label">Tactical Alert — The Bg5 Trap After 6...Nf6</div>
+        <p>After 6...Nf6 7.d3 0-0 8.0-0 Be6 9.Nd5 Qd7, White has the strong <strong>10.Bg5!</strong> This punishes ...Qd7 by developing with tempo. Black is immediately in trouble: 10...Ne8 11.Qd2 f6 12.Be3 leads to 13.f4 c6 14.f5 — devastating attack. This is one of the sharpest tactical patterns in the entire system. Know it cold.</p>
+      </div>
+    </div>
+
+    <!-- Setup 2: KID-Style c5 Position -->
+    <div class="plan-section" data-num="2" style="margin-top:20px;">
+      <h3>Setup 2 — The KID-Style Position</h3>
+      <span class="plan-tag">♗ Black plays ...c5 ...d6 ...g6</span>
+
+      <p>This is the King's Indian structure transposed into the English. Black's bishop sits on g7 looking down the long diagonal — it has more scope than in the pure e5 version, making the position slightly more comfortable for Black. But White has rich plans and the Botvinnik structure fully applies.</p>
+
+      <div class="moves">
+        <span class="move-num">1.</span><span class="move-w">c4</span> <span class="move-b">Nf6</span>
+        <span class="move-num">2.</span><span class="move-w">g3</span> <span class="move-b">g6</span>
+        <span class="move-num">3.</span><span class="move-w">Bg2</span> <span class="move-b">Bg7</span>
+        <span class="move-num">4.</span><span class="move-w">Nc3</span> <span class="move-b">0-0</span>
+        <span class="move-num">5.</span><span class="move-w">e4</span> <span class="move-b">d6</span>
+        <span class="move-num">6.</span><span class="move-w">Nge2</span> <span class="move-b">c5</span>
+        <span class="move-num">7.</span><span class="move-w">0-0</span>
+        <span class="move-note"> ← KID structure. Now choose: Plan A (Bh6) or Plan C (d4 Maroczy)</span>
+      </div>
+
+      <h4>Plan A — Bh6 Exchange Attack</h4>
+      <p>After 7.0-0, play <strong>Be3 → Qd2 → Bh6</strong>. The goal is to exchange off Black's g7 bishop — the key defensive piece — and follow up with f4. Once f4 is in, the kingside attack is rolling. Black's king becomes exposed without its dark-square guardian.</p>
+
+      <h4>Plan C — d4 Maroczy Bind</h4>
+      <p>If Black sets up passively, play <strong>d4</strong>, transposing into a Maroczy Bind structure where White has superior control of the center and the d5 square. These two plans are not mutually exclusive — the ability to switch between them based on Black's response is part of what makes the Botvinnik so powerful.</p>
+
+      <div class="callout warning">
+        <div class="callout-label">The ...Rb8 Trick — Know This</div>
+        <p>After 8.h3 a6 9.a4, Black often plays <strong>8...Rb8</strong> — preventing Be3 because it enables ...Ng4 in response. This forces you to spend a tempo with h3 first before committing Be3. When you see ...Rb8 early, play <strong>h3 before Be3</strong>. This is a recurring pattern — practice recognizing it instantly.</p>
+      </div>
+
+      <h4>After 8...Ne8 — Knight Rerouting to e6</h4>
+      <p>Black sometimes tries ...Ne8, aiming for ...Ne8-c7-e6 to control d4. White's response: <strong>9.Be3 immediately</strong> — which Black can't meet with ...Ng4 because Ne8 has moved. Concrete move order awareness wins material here.</p>
+
+      <table class="trick-table" style="margin-top:16px;">
+        <thead><tr><th>Black variation</th><th>Black's idea</th><th>White's response</th></tr></thead>
+        <tbody>
+          <tr><td>8...Rb8</td><td>Prevent Be3 (Ng4 threat)</td><td>9.h3 then Be3</td></tr>
+          <tr><td>8...Ne8</td><td>Reroute to e6, control d4</td><td>9.Be3 immediately</td></tr>
+          <tr><td>8...Nd4</td><td>Outpost knight, central pressure</td><td>9.Nxd4 exd4 10.Ne2, hold structure</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 06: ND5 BOARD -->
+  <div class="section">
+    <div class="section-num">06 — The Star Move</div>
+    <h2>Nd5 — White's Most Powerful Idea</h2>
+
+    <p>The Nd5 jump is the most important single move in the entire Botvinnik System. The knight lands on a central outpost that is difficult for Black to challenge. From d5 it attacks c7, eyes f4, anchors White's center, and serves as the springboard for the kingside attack.</p>
+
+    <div class="two-boards">
+      <div>
+        <div class="board-wrap">
+          <div id="board-nd5"></div>
+          <div class="board-caption">After 9.Nd5 — the star move. Teal: Nd5 outpost and attack vectors.</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:center;gap:16px;">
+        <div class="callout tip" style="margin:0;">
+          <div class="callout-label">What Nd5 Controls</div>
+          <p>From d5, the knight attacks c7 (often a target), supports f4 (kingside attack), eyes b6 and e7, and cannot easily be evicted by Black's pawns. It is the anchor of White's entire plan.</p>
+        </div>
+        <div class="callout tip" style="margin:0;">
+          <div class="callout-label">When to Play It</div>
+          <p>Play Nd5 as soon as it's available and Black cannot meet it with ...c6 (which would lose the d6 pawn to Nxf6+). If Black can play ...c6 safely, reroute via Ne3 or prepare it with Bg5 first.</p>
+        </div>
+        <div class="callout warning" style="margin:0;">
+          <div class="callout-label">One Caution</div>
+          <p>Don't play Nd5 if Black can safely respond with ...Nxd5 cxd5 ...c6, winning back the pawn and dissolving your structure. Calculate ...c6 responses before jumping.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="font-family:'Playfair Display',serif;font-size:22px;color:var(--cream);margin:28px 0 12px;">The f4 Attack — After Nd5 Is Secure</h3>
+    <p>Once Nd5 is on the board and Bh6 has been played (or Black's dark-squared bishop is otherwise neutralized), push <strong>f4</strong>. This is the engine of the kingside attack. The f-pawn advances to f5, cracking open the kingside, and the attack on Black's king becomes concrete. Only launch f4 after:</p>
+    <ul class="step-list">
+      <li><strong>The center is locked.</strong> If Black can open the center with ...d5 or ...e4, f4 can backfire. Confirm the pawn chain is stable first.</li>
+      <li><strong>Bh6 has been played or the g7 bishop is off.</strong> Without removing Black's dark-square defender, f4–f5 is much less effective — Black's bishop still defends g6 and f8.</li>
+      <li><strong>Your king is safe.</strong> f4 weakens e3 and g3. Make sure Black has no counterattack before committing.</li>
+    </ul>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 07: WHEN NOT TO PLAY BOTVINNIK -->
+  <div class="section">
+    <div class="section-num">07 — Know When to Stop</div>
+    <h2>When NOT to Play the Botvinnik</h2>
+
+    <p>The Botvinnik is not a universal system — it has clear conditions that must be met. When they aren't, forcing e4 is a strategic error. Here's a reference for every position where you should change plans:</p>
+
+    <div class="cheat-grid">
+      <div class="cheat-card">
+        <div class="cheat-card-head no">✗ ...d5 at any point</div>
+        <p><strong>Why Botvinnik fails:</strong> Directly attacks your e4 center. Exchanging on d5 gives Black a good game.</p>
+        <p><strong>Play instead:</strong> cxd5 → Nxd5 (or exd5) → d4, entering reversed Grünfeld. Do NOT push e4.</p>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-card-head no">✗ 1...Nf6 2.g3 e6</div>
+        <p><strong>Why Botvinnik fails:</strong> QGD/French structure — e4 is premature and gives Black a central target.</p>
+        <p><strong>Play instead:</strong> cxd5, d4 — play a Queen's pawn type position.</p>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-card-head no">✗ No ...g6 (Black plays ...Be7)</div>
+        <p><strong>Why Botvinnik fails:</strong> The system targets a fianchettoed king. Without g6, the entire strategy loses its point.</p>
+        <p><strong>Play instead:</strong> Normal English development — Four Knights or symmetrical setups.</p>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-card-head no">✗ ...c5 without ...g6</div>
+        <p><strong>Why Botvinnik fails:</strong> Symmetrical English — Black hasn't committed to g6, so the Botvinnik is not triggered.</p>
+        <p><strong>Play instead:</strong> b3 + Bb2, or d4 — standard symmetrical English plans.</p>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-card-head wait">⏳ g6 + Bg7 but no ...d6 yet</div>
+        <p><strong>Status:</strong> Not yet committed.</p>
+        <p><strong>Play:</strong> Develop Nc3, Bg2, Nge2 and wait. Only build e4 once d6 appears, confirming the closed center.</p>
+      </div>
+      <div class="cheat-card">
+        <div class="cheat-card-head yes">✓ g6 + Bg7 + d6 + e5</div>
+        <p><strong>Status:</strong> Full Botvinnik — GO.</p>
+        <p><strong>Structure:</strong> c4 + d3 + e4 + g3. Primary plan: Nd5 outpost → f4 kingside attack.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 08: TRICKY MOVE ORDERS -->
+  <div class="section">
+    <div class="section-num">08 — Move Order Traps</div>
+    <h2>Tricky Move Orders to Know Cold</h2>
+
+    <p>These are the lines most likely to catch you off guard at the board. Every tricky move order either plays ...d5 before ...d6 (killing your center) or attacks your structure before you castle (f5, h5, Be6). In both cases your answer is the same: <strong>slow down, don't reflexively push e4</strong>, and use Nd5 or h4 to stabilize.</p>
+
+    <table class="principle-table">
+      <thead><tr><th>Line</th><th>Black's Trap</th><th>White's Correct Response</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1.c4 Nf6 2.g3 g6 3.Bg2 Bg7 4.Nc3 d5</td>
+          <td>...d5 before ...d6 — kills e4 center</td>
+          <td>5.cxd5 Nxd5 6.d4 → reversed Grünfeld. Do NOT play e4.</td>
+        </tr>
+        <tr>
+          <td>1.c4 Nf6 2.g3 e6 3.Bg2 d5</td>
+          <td>Nf6 looks like KID, but e6+d5 = QGD structure</td>
+          <td>4.cxd5 exd5 5.Nf3 → d4 normal English. Avoid e4.</td>
+        </tr>
+        <tr>
+          <td>1.c4 e5 2.g3 Nf6 3.Bg2 d5</td>
+          <td>Looks like e5 Botvinnik but d5 arrives move 3</td>
+          <td>4.cxd5 Nxd5 5.Nc3 Nxc3 6.dxc3 → Anti-Botvinnik. Skip e4 entirely.</td>
+        </tr>
+        <tr>
+          <td>...6.Nge2 Be6 7.d3 Qd7 → ...Bh3</td>
+          <td>Plans to swap your g2 bishop and weaken your kingside</td>
+          <td>8.Nd5! immediately — attacks c7, stops ...Bh3 without h3 first.</td>
+        </tr>
+        <tr>
+          <td>...6.Nge2 h5</td>
+          <td>Stops your h4, grabs kingside space</td>
+          <td>7.h4! immediately — lock the h-file. Do not delay.</td>
+        </tr>
+        <tr>
+          <td>...6.Nge2 f5</td>
+          <td>Attacks e4 before you castle — looks scary</td>
+          <td>7.d3 Nf6 8.0-0 0-0 9.Nd5. Do NOT play exf5 — Nd5 gives counterplay.</td>
+        </tr>
+        <tr>
+          <td>...6.Nge2 Nf6 → 9...Qd7</td>
+          <td>Looks like normal development — trap invisible until move 10</td>
+          <td>10.Bg5! — develops with tempo, Black is immediately worse.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 09: KEY PATTERNS -->
+  <div class="section">
+    <div class="section-num">09 — Pattern Library</div>
+    <h2>Key Patterns to Drill</h2>
+
+    <table class="principle-table">
+      <thead><tr><th>Pattern</th><th>What It Is</th><th>When to Use It</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Nd5 jump</td>
+          <td>Knight leaps to d5 outpost, attacks c7, supports f4</td>
+          <td>Almost always — do it before Black can play ...c6 to prevent it</td>
+        </tr>
+        <tr>
+          <td>Bh6 exchange</td>
+          <td>Trade off the g7 bishop to expose Black's king dark squares</td>
+          <td>Only after Black has castled kingside — then Bh6 is the attack trigger</td>
+        </tr>
+        <tr>
+          <td>f4–f5 push</td>
+          <td>The engine of the kingside attack</td>
+          <td>Only after Bh6 has been played and center is locked. Don't rush.</td>
+        </tr>
+        <tr>
+          <td>d4 break</td>
+          <td>Transition to Maroczy Bind</td>
+          <td>When Black is passive and uncoordinated. Best with rook on d1.</td>
+        </tr>
+        <tr>
+          <td>h3 prophylaxis</td>
+          <td>Prevents ...Ng4 threatening Be3</td>
+          <td>Whenever Black plays ...Rb8 or positions a knight where ...Ng4 is coming. Play h3 first, Be3 after.</td>
+        </tr>
+        <tr>
+          <td>Bg5! tempo move</td>
+          <td>Develops bishop with attack on f6 or punishes ...Qd7</td>
+          <td>After 9.Nd5 Qd7 — Bg5! creates immediate pressure and leads to advantage</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 10: CHESSBOARD REFERENCE + QUICK CHEAT SHEET -->
+  <div class="section">
+    <div class="section-num">10 — At-the-Board Reference</div>
+    <h2>Quick Decision Cheat Sheet</h2>
+
+    <table class="principle-table">
+      <thead><tr><th>Black's setup</th><th>Botvinnik?</th><th>Your pawn structure</th><th>Primary plan</th></tr></thead>
+      <tbody>
+        <tr><td>g6 + Bg7 + d6 + e5</td><td style="color:var(--green);font-weight:700;">YES</td><td>c4+d3+e4+g3</td><td>Nd5 outpost → f4 kingside attack</td></tr>
+        <tr><td>g6 + Bg7 + d6 + c5</td><td style="color:var(--green);font-weight:700;">YES</td><td>c4+d3+e4+g3</td><td>Bh6 exchange → f4, or d4 Maroczy Bind</td></tr>
+        <tr><td>g6 + Bg7 + d5 (any)</td><td style="color:var(--red);font-weight:700;">NO</td><td>Do NOT play e4</td><td>cxd5 Nxd5, d4 — reversed Grünfeld</td></tr>
+        <tr><td>e6 + d5 (no g6)</td><td style="color:var(--red);font-weight:700;">NO</td><td>Do NOT play e4</td><td>QGD-style: cxd5, d4 setup</td></tr>
+        <tr><td>No fianchetto (Be7 etc.)</td><td style="color:var(--red);font-weight:700;">NO</td><td>Normal English</td><td>Four Knights, b3+Bb2, or d4</td></tr>
+        <tr><td>g6 + Bg7, not committed yet</td><td style="color:var(--amber);font-weight:700;">WAIT</td><td>Build slowly</td><td>Develop Nc3, Bg2, Nge2 — decide after d6 appears</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip" style="margin-top:28px;">
+      <div class="callout-label">ChessMood Course Integration</div>
+      <p>Both the <strong>Silent Strategy</strong> and <strong>Blunder Proof</strong> ChessMood courses apply directly here. Silent Strategy covers the positional understanding behind Plan B (Nd5) and Plan D (queenside expansion). Blunder Proof covers the safety checks needed before committing to f4 or Nd5 — always ask "can Black exploit my kingside weakness?" before launching the attack.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    ♘ Botvinnik System · Iron English Field Guide · Based on Hanging Pawns English Opening Theory
+  </div>
+</div>
+
+<!-- BOARD RENDERING SCRIPT — Lichess cburnett pieces -->
+<script>
+  const SQ = 62;
+  const SET = 'cburnett';
+  function pUrl(c, t) { return `https://lichess1.org/assets/piece/${SET}/${c}${t}.svg`; }
+
+  function renderBoard(id, pos, hlTeal, hlAmber, hlRed, border) {
+    const wrap = document.getElementById(id);
+    if (!wrap) return;
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:flex-start;';
+
+    const files = ['a','b','c','d','e','f','g','h'];
+    const ranks = ['8','7','6','5','4','3','2','1'];
+
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;flex-direction:row;align-items:flex-start;';
+
+    // Rank labels
+    const rl = document.createElement('div');
+    rl.style.cssText = 'display:flex;flex-direction:column;padding-right:5px;';
+    ranks.forEach(r => {
+      const d = document.createElement('div');
+      d.style.cssText = `height:${SQ}px;display:flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#8b949e;`;
+      d.textContent = r; rl.appendChild(d);
+    });
+
+    const bcol = document.createElement('div');
+    bcol.style.cssText = 'display:flex;flex-direction:column;';
+
+    const grid = document.createElement('div');
+    grid.style.cssText = `display:grid;grid-template-columns:repeat(8,${SQ}px);grid-template-rows:repeat(8,${SQ}px);border:2px solid ${border};box-shadow:0 10px 36px rgba(0,0,0,0.65);`;
+
+    ranks.forEach((rank, ri) => {
+      files.forEach((file, fi) => {
+        const key = file + rank;
+        const sq = document.createElement('div');
+        const light = (ri + fi) % 2 === 0;
+
+        let bg = light ? '#f0d9b5' : '#b58863';
+        if (hlTeal  && hlTeal.includes(key))  bg = light ? 'rgba(63,176,172,0.5)' : 'rgba(40,140,135,0.6)';
+        if (hlAmber && hlAmber.includes(key)) bg = light ? 'rgba(227,179,65,0.5)' : 'rgba(180,140,40,0.58)';
+        if (hlRed   && hlRed.includes(key))   bg = light ? 'rgba(192,57,43,0.45)' : 'rgba(160,42,30,0.52)';
+
+        sq.style.cssText = `width:${SQ}px;height:${SQ}px;display:flex;align-items:center;justify-content:center;background:${bg};position:relative;`;
+
+        const piece = pos[key];
+        if (piece) {
+          const img = document.createElement('img');
+          img.src = pUrl(piece[0], piece[1]);
+          img.style.cssText = `width:${SQ-3}px;height:${SQ-3}px;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.55));pointer-events:none;`;
+          sq.appendChild(img);
+        }
+        grid.appendChild(sq);
+      });
+    });
+
+    // File labels
+    const fl = document.createElement('div');
+    fl.style.cssText = 'display:flex;padding-top:4px;';
+    files.forEach(f => {
+      const d = document.createElement('div');
+      d.style.cssText = `width:${SQ}px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#8b949e;`;
+      d.textContent = f; fl.appendChild(d);
+    });
+
+    bcol.appendChild(grid); bcol.appendChild(fl);
+    row.appendChild(rl); row.appendChild(bcol);
+    wrap.appendChild(row);
+  }
+
+  // Board 1: Full Botvinnik structure after 7.d3 0-0 8.0-0
+  const botPos = {
+    'a8':['b','R'],'b8':null,     'c8':['b','B'],'d8':['b','Q'],
+    'e8':['b','K'],'f8':['b','R'],'g8':null,     'h8':null,
+    'a7':['b','P'],'b7':['b','P'],'c7':['b','P'],'d7':null,
+    'e7':null,     'f7':['b','P'],'g7':['b','B'],'h7':['b','P'],
+    'a6':null,'b6':null,'c6':['b','N'],'d6':['b','P'],
+    'e6':null,'f6':null,'g6':['b','P'],'h6':null,
+    'a5':null,'b5':null,'c5':null,'d5':null,
+    'e5':['b','P'],'f5':null,'g5':null,'h5':null,
+    'a4':null,'b4':null,'c4':null,'d4':null,
+    'e4':['w','P'],'f4':null,'g4':null,'h4':null,
+    'a3':null,'b3':null,'c3':['w','N'],'d3':['w','P'],
+    'e3':null,'f3':null,'g3':['w','P'],'h3':null,
+    'a2':['w','P'],'b2':['w','P'],'c2':null,'d2':null,
+    'e2':['w','N'],'f2':['w','P'],'g2':['w','B'],'h2':['w','P'],
+    'a1':['w','R'],'b1':null,'c1':['w','B'],'d1':['w','Q'],
+    'e1':null,'f1':['w','R'],'g1':['w','K'],'h1':null,
+  };
+
+  // Teal highlights = the Botvinnik pawn chain + Nge2
+  // Amber = d5 square (Nd5 target)
+  renderBoard('board-botvinnik-core', botPos,
+    ['c4','d3','e4','g3','g2','e2'],  // teal: pawn chain + Bg2 + Ne2
+    ['d5'],                             // amber: Nd5 target
+    null,
+    '#3fb0ac'
+  );
+
+  // Board 2: After 9.Nd5 — the star move
+  const nd5Pos = {
+    'a8':['b','R'],'b8':null,     'c8':null,     'd8':['b','Q'],
+    'e8':['b','K'],'f8':['b','R'],'g8':null,     'h8':null,
+    'a7':['b','P'],'b7':['b','P'],'c7':['b','P'],'d7':['b','Q'],
+    'e7':['b','N'],'f7':['b','P'],'g7':['b','B'],'h7':['b','P'],
+    'a6':null,'b6':null,'c6':null,'d6':['b','P'],
+    'e6':['b','B'],'f6':null,'g6':['b','P'],'h6':null,
+    'a5':null,'b5':null,'c5':null,'d5':['w','N'],
+    'e5':['b','P'],'f5':null,'g5':null,'h5':null,
+    'a4':null,'b4':null,'c4':['w','P'],'d4':null,
+    'e4':['w','P'],'f4':null,'g4':null,'h4':null,
+    'a3':null,'b3':null,'c3':null,'d3':['w','P'],
+    'e3':['w','B'],'f3':null,'g3':['w','P'],'h3':null,
+    'a2':['w','P'],'b2':['w','P'],'c2':null,'d2':['w','Q'],
+    'e2':null,'f2':['w','P'],'g2':['w','B'],'h2':['w','P'],
+    'a1':['w','R'],'b1':null,'c1':null,'d1':null,
+    'e1':null,'f1':['w','R'],'g1':['w','K'],'h1':null,
+  };
+
+  renderBoard('board-nd5', nd5Pos,
+    ['d5','c7'],      // teal: Nd5 on d5, attacking c7
+    ['f4'],           // amber: f4 advance target
+    null,
+    '#3fb0ac'
+  );
+</script>
+
+</body>
+</html>

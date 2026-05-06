@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Isolated Queen's Pawn — Complete Structure Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0b10;
+    --surface: #17121a;
+    --surface2: #1e1824;
+    --border: #2f2838;
+    --crimson: #9b2335;
+    --crimson-bright: #d44060;
+    --crimson-dim: #5c1420;
+    --cream: #f0e6d8;
+    --cream-dim: #9a8e82;
+    --gold: #c9943a;
+    --gold-bright: #e8b84a;
+    --gold-dim: #7a5a1e;
+    --green: #4a9468;
+    --green-light: #6dc48a;
+    --amber: #d4943a;
+    --white-sq: #f0d9b5;
+    --dark-sq: #b58863;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Lora', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.85;
+    min-height: 100vh;
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    background: var(--surface);
+    border-bottom: 2px solid var(--crimson);
+    padding: 56px 0 44px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .masthead::before {
+    content: '♙';
+    position: absolute; font-size: 380px;
+    color: rgba(155,35,53,0.06);
+    left: -80px; top: -60px;
+    line-height: 1; pointer-events: none;
+  }
+  .masthead::after {
+    content: '♟';
+    position: absolute; font-size: 300px;
+    color: rgba(155,35,53,0.06);
+    right: -50px; bottom: -90px;
+    line-height: 1; pointer-events: none;
+  }
+  .masthead-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--crimson-bright); margin-bottom: 18px;
+    position: relative; z-index: 1;
+  }
+  .masthead h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(28px,5.5vw,58px);
+    font-weight: 900; color: var(--cream);
+    line-height: 1.1; letter-spacing: 0.04em;
+    position: relative; z-index: 1;
+  }
+  .masthead h1 em {
+    color: var(--gold-bright);
+    font-style: italic;
+    font-family: 'Lora', serif;
+    font-size: 1.08em;
+  }
+  .masthead-sub {
+    margin-top: 16px; font-size: 16px;
+    color: var(--cream-dim); font-style: italic;
+    position: relative; z-index: 1;
+  }
+  .masthead-meta {
+    margin-top: 24px; display: flex; justify-content: center;
+    gap: 32px; font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em; color: var(--crimson-bright);
+    opacity: 0.8; position: relative; z-index: 1; flex-wrap: wrap;
+  }
+  /* Tarrasch quote strip */
+  .tarrasch {
+    background: var(--crimson-dim);
+    border-top: 1px solid var(--crimson);
+    border-bottom: 1px solid var(--crimson);
+    padding: 16px 32px;
+    text-align: center;
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--cream-dim);
+    letter-spacing: 0.03em;
+  }
+  .tarrasch span { color: var(--gold-bright); font-weight: 600; }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 900px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── SECTIONS ── */
+  .section { padding: 56px 0 0; }
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--crimson-bright); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-num::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section h2 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(22px,3.8vw,34px); font-weight: 700;
+    color: var(--cream); line-height: 1.25; margin-bottom: 24px;
+    letter-spacing: 0.03em;
+  }
+  .section p { color: var(--cream-dim); margin-bottom: 16px; font-size: 17px; }
+  .section p strong { color: var(--cream); font-weight: 600; }
+  .section p em { color: var(--gold-bright); font-style: italic; }
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 52px 0 0; }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    background: var(--surface2); border-left: 3px solid var(--crimson);
+    padding: 18px 22px; margin: 26px 0; border-radius: 0 6px 6px 0;
+  }
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--crimson-bright); margin-bottom: 8px;
+  }
+  .callout p { margin: 0; font-style: italic; font-size: 16px; color: var(--cream-dim); }
+  .callout.warning { border-left-color: #c0392b; }
+  .callout.warning .callout-label { color: #e05040; }
+  .callout.tip { border-left-color: var(--green-light); }
+  .callout.tip .callout-label { color: var(--green-light); }
+  .callout.gold { border-left-color: var(--gold); }
+  .callout.gold .callout-label { color: var(--gold-bright); }
+
+  /* ── STATIC VS DYNAMIC BALANCE BAR ── */
+  .balance-wrap {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin: 28px 0;
+  }
+  .balance-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 22px 20px;
+  }
+  .balance-card.dynamic { border-top: 3px solid var(--gold); }
+  .balance-card.static  { border-top: 3px solid var(--green); }
+  .balance-card h3 {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .balance-card.dynamic h3 { color: var(--gold-bright); }
+  .balance-card.static  h3 { color: var(--green-light); }
+  .balance-card ul { list-style: none; }
+  .balance-card ul li {
+    font-size: 14px; color: var(--cream-dim);
+    margin-bottom: 8px; padding-left: 18px; position: relative;
+    line-height: 1.55;
+  }
+  .balance-card ul li::before { content: '→'; position: absolute; left: 0; }
+  .balance-card.dynamic ul li::before { color: var(--gold-dim); }
+  .balance-card.static  ul li::before { color: var(--green); }
+
+  /* ── GALLAGHER RULE ── */
+  .gallagher {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 12px; margin: 24px 0;
+  }
+  .gallagher-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px 14px; text-align: center;
+  }
+  .gallagher-card .g-count {
+    font-family: 'Cinzel', serif; font-size: 28px;
+    font-weight: 900; margin-bottom: 8px;
+  }
+  .gallagher-card.good  { border-top: 3px solid var(--green-light); }
+  .gallagher-card.even  { border-top: 3px solid var(--gold); }
+  .gallagher-card.weak  { border-top: 3px solid var(--crimson-bright); }
+  .gallagher-card.good  .g-count { color: var(--green-light); }
+  .gallagher-card.even  .g-count { color: var(--gold-bright); }
+  .gallagher-card.weak  .g-count { color: var(--crimson-bright); }
+  .gallagher-card .g-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    margin-bottom: 8px; display: block;
+  }
+  .gallagher-card.good  .g-label { color: var(--green-light); }
+  .gallagher-card.even  .g-label { color: var(--gold-bright); }
+  .gallagher-card.weak  .g-label { color: var(--crimson-bright); }
+  .gallagher-card p { font-size: 13px; color: var(--cream-dim); line-height: 1.5; margin: 0; }
+
+  /* ── PLAN GRID ── */
+  .plan-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; margin: 24px 0; }
+  .plan-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-top: 3px solid var(--crimson); padding: 20px 18px;
+    border-radius: 0 0 8px 8px; transition: border-color 0.2s;
+  }
+  .plan-card:hover { border-color: var(--crimson); border-top-color: var(--crimson-bright); }
+  .plan-card.against { border-top-color: var(--green); }
+  .plan-card.against:hover { border-top-color: var(--green-light); }
+  .plan-card-icon { font-size: 26px; margin-bottom: 10px; }
+  .plan-card h3 { font-family: 'Cinzel', serif; font-size: 16px; color: var(--cream); margin-bottom: 8px; }
+  .plan-card p { font-size: 14px; color: var(--cream-dim); margin: 0; line-height: 1.6; }
+
+  /* ── PLAN DETAIL ── */
+  .plan-section {
+    margin-top: 40px; padding: 30px 28px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; position: relative;
+  }
+  .plan-section::before {
+    content: attr(data-num);
+    position: absolute; top: 16px; right: 20px;
+    font-family: 'Cinzel', serif; font-size: 68px;
+    color: var(--border); font-weight: 900; line-height: 1;
+  }
+  .plan-section h3 { font-family: 'Cinzel', serif; font-size: 24px; color: var(--gold-bright); margin-bottom: 4px; letter-spacing: 0.03em; }
+  .plan-section.against h3 { color: var(--green-light); }
+  .plan-section .plan-tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--crimson-bright); margin-bottom: 16px; display: block;
+  }
+  .plan-section.against .plan-tag { color: var(--green-light); }
+  .plan-section p { color: var(--cream-dim); margin-bottom: 14px; font-size: 16px; }
+  .plan-section p strong { color: var(--cream); }
+  .plan-section h4 { font-family: 'Cinzel', serif; font-size: 16px; color: var(--cream); margin: 20px 0 10px; letter-spacing: 0.02em; }
+
+  /* ── MOVES ── */
+  .moves {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 12px 18px; margin: 14px 0;
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+    color: var(--cream-dim); line-height: 2;
+  }
+  .move-num { color: var(--crimson-dim); opacity: 0.8; }
+  .move-w { color: var(--cream-dim); }
+  .move-b { color: var(--gold-bright); font-weight: 500; }
+  .move-note { color: var(--green-light); font-style: italic; font-size: 12px; }
+  .move-key { color: var(--crimson-bright); font-weight: 700; }
+
+  /* ── STEP LIST ── */
+  .step-list { list-style: none; margin: 16px 0; counter-reset: steps; }
+  .step-list li {
+    counter-increment: steps; display: flex; gap: 16px;
+    margin-bottom: 14px; align-items: flex-start;
+    font-size: 15px; color: var(--cream-dim);
+  }
+  .step-list li::before {
+    content: counter(steps); min-width: 28px; height: 28px;
+    background: var(--crimson); color: var(--cream);
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    font-weight: 600; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .step-list.against li::before { background: var(--green); }
+  .step-list li strong { color: var(--cream); }
+
+  /* ── TABLES ── */
+  .ptable { width: 100%; border-collapse: collapse; margin: 22px 0; font-size: 14px; }
+  .ptable th {
+    background: var(--crimson); color: var(--cream); padding: 10px 14px;
+    text-align: left; font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;
+  }
+  .ptable.against th { background: var(--green); color: var(--bg); }
+  .ptable td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--cream-dim); vertical-align: top; }
+  .ptable tr:nth-child(even) td { background: var(--surface2); }
+  .ptable td:first-child { color: var(--cream); font-weight: 600; }
+  code {
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 1px 6px; border-radius: 3px; color: var(--gold-bright);
+  }
+
+  /* ── BOARDS ── */
+  .board-wrap { margin: 32px 0; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .board-caption { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--gold-dim); letter-spacing: 0.05em; max-width: 520px; line-height: 1.5; }
+  .two-boards { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin: 32px 0; align-items: start; }
+  @media (max-width:720px) { .two-boards { grid-template-columns:1fr; } }
+
+  /* ── OPENING ROUTE CARDS ── */
+  .route-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(250px,1fr)); gap: 16px; margin: 24px 0; }
+  .route-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px 16px;
+  }
+  .route-card-head {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--crimson-bright); margin-bottom: 10px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .route-card p { font-size: 14px; color: var(--cream-dim); margin-bottom: 8px; line-height: 1.55; }
+  .route-card p:last-child { margin: 0; }
+  .route-card p strong { color: var(--cream); }
+  .route-card .moves { padding: 8px 12px; font-size: 12px; margin: 10px 0 0; }
+
+  /* ── ENDGAME RULE ── */
+  .endgame-rule {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px 24px;
+    margin: 24px 0;
+    position: relative;
+  }
+  .endgame-rule::before {
+    content: 'GALLAGHER RULE';
+    position: absolute; top: -11px; left: 20px;
+    background: var(--crimson); color: var(--cream);
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    letter-spacing: 0.2em; padding: 2px 12px; border-radius: 3px;
+  }
+
+  /* ── YOUTUBE ── */
+  .yt-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px 20px; margin-bottom: 12px;
+    display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: start;
+    transition: border-color 0.2s;
+  }
+  .yt-card:hover { border-color: var(--crimson-dim); }
+  .yt-title { font-family: 'Cinzel', serif; font-size: 15px; color: var(--cream); margin-bottom: 4px; letter-spacing: 0.01em; }
+  .yt-meta { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--gold-dim); margin-bottom: 6px; }
+  .yt-desc { font-size: 14px; color: var(--cream-dim); line-height: 1.5; margin: 0; }
+  .yt-phase {
+    margin: 24px 0 12px; font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--crimson-bright); display: flex; align-items: center; gap: 10px;
+  }
+  .yt-phase::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .badge {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; padding: 3px 10px; border-radius: 4px; white-space: nowrap;
+  }
+  .badge-must { background: var(--crimson); color: var(--cream); font-weight: 700; }
+  .badge-high { background: var(--green); color: var(--cream); }
+  .badge-med  { background: var(--border); color: var(--cream-dim); }
+  .badge-deep { background: #1a0a30; color: #c0a0e0; border: 1px solid #4a2070; }
+
+  .footer {
+    margin-top: 72px; padding: 32px 0;
+    border-top: 1px solid var(--border); text-align: center;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    color: var(--crimson-dim); letter-spacing: 0.12em;
+  }
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-label">Chess Structure Series · Both Sides</div>
+  <h1>The <em>Isolated Queen's Pawn</em></h1>
+  <div class="masthead-sub">The complete guide to the IQP — static weakness, dynamic weapon, and everything in between</div>
+  <div class="masthead-meta">
+    <span>♙ The Isolani — d4 for White, d5 for Black</span>
+    <span>◆ Openings: QGA · Nimzo · Tarrasch · Panov · French</span>
+    <span>♟ Level: Beginner → Intermediate</span>
+  </div>
+</div>
+<div class="tarrasch">"He who fears an Isolated Queen's Pawn should <span>give up chess.</span>" — Dr. Siegbert Tarrasch</div>
+
+<div class="container">
+
+  <!-- SECTION 01: WHAT IS IT -->
+  <div class="section">
+    <div class="section-num">01 — Foundation</div>
+    <h2>What Is the Isolated Queen's Pawn?</h2>
+
+    <p>The Isolated Queen's Pawn — the <strong>IQP</strong>, or <em>isolani</em> — is a pawn on the d-file that has no friendly pawn on either adjacent file. There is no c-pawn and no e-pawn to support it. It stands alone, and that isolation is both its greatest weakness and its greatest strength.</p>
+
+    <p>The IQP is the most instructive pawn structure in all of chess, and studying it is widely considered a milestone in a player's development. Why? Because it is the clearest example in chess of <strong>static vs dynamic imbalances</strong> — the fundamental tension between short-term energy and long-term structure. Every serious player must learn to play both sides of it.</p>
+
+    <!-- BOARDS: IQP + BLOCKADE SIDE BY SIDE -->
+    <div class="two-boards">
+      <div>
+        <div class="board-wrap">
+          <div id="board-iqp"></div>
+          <div class="board-caption">Classic White IQP position. Gold: the isolated d4 pawn. Teal: White's outpost targets on e5 and c5. Red: the d5 blockade square.</div>
+        </div>
+      </div>
+      <div>
+        <div class="board-wrap">
+          <div id="board-blockade"></div>
+          <div class="board-caption">The ideal blockade — Black's knight on d5, immobilising the IQP. Red: the blockaded d4 pawn. Blue: knight on d5, the perfect piece for this role.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout gold">
+      <div class="callout-label">The Core Tension</div>
+      <p>The IQP cannot be defended by another pawn — only by pieces. This ties down pieces to its defence long-term. But the open c- and e-files, the e5 and c5 outpost squares, and the active piece coordination the IQP enables make it a dynamic <em>weapon</em> in the middlegame. The central question is always: who wins the race — the attacker cashing in the dynamic energy, or the defender neutralising it and winning the weak pawn?</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 02: STATIC VS DYNAMIC -->
+  <div class="section">
+    <div class="section-num">02 — The Double-Edged Truth</div>
+    <h2>Static Weakness, Dynamic Weapon</h2>
+
+    <p>The IQP is the most instructive example of a fundamental chess concept: the same feature can be both a strength and a weakness depending on the <em>phase of the game</em> and the <em>number of pieces on the board</em>. Understanding this duality is the first step to mastering IQP positions.</p>
+
+    <div class="balance-wrap">
+      <div class="balance-card dynamic">
+        <h3>♙ For the IQP Side</h3>
+        <ul>
+          <li>More space in the centre</li>
+          <li>Open c-file and e-file for rooks</li>
+          <li>Powerful e5 and c5 piece outposts</li>
+          <li>Active piece development</li>
+          <li>Attacking chances (b1–h7 battery)</li>
+          <li>d5 break threatens to dissolve the IQP favourably</li>
+          <li>Rook lifts along 3rd rank for kingside attack</li>
+        </ul>
+      </div>
+      <div class="balance-card static">
+        <h3>♟ Against the IQP</h3>
+        <ul>
+          <li>The d4 pawn is a permanent structural weakness</li>
+          <li>d5 square is an ideal blockade post</li>
+          <li>IQP becomes weaker as pieces are traded</li>
+          <li>Better pawn structure — no weaknesses</li>
+          <li>Endgame is nearly winning with correct technique</li>
+          <li>Rooks on d- and c-files attack the pawn</li>
+          <li>Blockading knight cannot be driven away by pawns</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Gallagher Rule -->
+    <div class="endgame-rule">
+      <p style="margin-bottom:18px;color:var(--cream-dim);font-size:15px;">GM Joe Gallagher established the definitive rule for evaluating whether the IQP is an asset or a liability, based purely on piece count:</p>
+      <div class="gallagher">
+        <div class="gallagher-card good">
+          <div class="g-count">4</div>
+          <span class="g-label">Minor Pieces Each</span>
+          <p>IQP is an <strong style="color:var(--green-light);">advantage</strong>. Piece activity overwhelms the structural weakness.</p>
+        </div>
+        <div class="gallagher-card even">
+          <div class="g-count">3</div>
+          <span class="g-label">Minor Pieces Each</span>
+          <p>IQP is roughly <strong style="color:var(--gold-bright);">equal</strong>. Dynamic vs static balance is neutral.</p>
+        </div>
+        <div class="gallagher-card weak">
+          <div class="g-count">≤2</div>
+          <span class="g-label">Minor Pieces Each</span>
+          <p>IQP is a <strong style="color:var(--crimson-bright);">liability</strong>. Structural weakness dominates — avoid the endgame.</p>
+        </div>
+      </div>
+      <p style="margin:0;color:var(--cream-dim);font-size:14px;font-style:italic;">This rule governs every trade decision: the IQP side avoids piece exchanges; the defending side seeks them.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 03: OPENING ROUTES -->
+  <div class="section">
+    <div class="section-num">03 — How It Arises</div>
+    <h2>Every Opening That Creates the IQP</h2>
+
+    <p>The IQP appears in a remarkable range of openings — from 1.d4 to 1.e4, from the English to the Sicilian. This universality is exactly why studying it pays dividends regardless of your repertoire. Here are the most common routes:</p>
+
+    <div class="route-grid">
+      <div class="route-card">
+        <div class="route-card-head">Queen's Gambit Accepted (QGA)</div>
+        <p><strong>White gets the IQP.</strong> The most classic route. Black accepts the gambit pawn and White plays e3-Bxc4, then dxc4 or cxd4 gives White the isolani.</p>
+        <div class="moves">
+          <span class="move-num">1.</span><span class="move-w">d4</span> <span class="move-b">d5</span>
+          <span class="move-num">2.</span><span class="move-w">c4</span> <span class="move-b">dxc4</span>
+          <span class="move-num">3.</span><span class="move-w">Nf3</span> <span class="move-b">Nf6</span>
+          <span class="move-num">4.</span><span class="move-w">e3</span> <span class="move-b">e6</span>
+          <span class="move-num">5.</span><span class="move-w">Bxc4</span> <span class="move-b">c5</span>
+          <span class="move-num">6.</span><span class="move-w">0-0</span> <span class="move-b">Nc6</span>
+          <span class="move-num">7.</span><span class="move-w">dxc5 ←</span>
+          <span class="move-note">White IQP on d4 after cxd4</span>
+        </div>
+      </div>
+      <div class="route-card">
+        <div class="route-card-head">Nimzo-Indian Defence</div>
+        <p><strong>White or Black gets IQP.</strong> Rich IQP positions arise after Bb4xc3, dxc3 or cxd4, exd4 exchanges. One of the richest sources.</p>
+        <div class="moves">
+          <span class="move-num">1.</span><span class="move-w">d4</span> <span class="move-b">Nf6</span>
+          <span class="move-num">2.</span><span class="move-w">c4</span> <span class="move-b">e6</span>
+          <span class="move-num">3.</span><span class="move-w">Nc3</span> <span class="move-b">Bb4</span>
+          <span class="move-num">4.</span><span class="move-w">e3</span> <span class="move-b">c5</span>
+          <span class="move-num">5.</span><span class="move-w">Bd3</span> <span class="move-b">d5</span>
+          <span class="move-num">6.</span><span class="move-w">cxd5</span> <span class="move-b">exd5</span>
+          <span class="move-num">7.</span><span class="move-w">Nf3</span> <span class="move-b">cxd4 ←</span>
+          <span class="move-note">White IQP on d4</span>
+        </div>
+      </div>
+      <div class="route-card">
+        <div class="route-card-head">Tarrasch Defence</div>
+        <p><strong>Black gets the IQP.</strong> Black deliberately accepts the isolani in exchange for active piece play. Classic aggressive defence.</p>
+        <div class="moves">
+          <span class="move-num">1.</span><span class="move-w">d4</span> <span class="move-b">d5</span>
+          <span class="move-num">2.</span><span class="move-w">c4</span> <span class="move-b">e6</span>
+          <span class="move-num">3.</span><span class="move-w">Nc3</span> <span class="move-b">c5</span>
+          <span class="move-num">4.</span><span class="move-w">cxd5</span> <span class="move-b">exd5</span>
+          <span class="move-num">5.</span><span class="move-w">Nf3</span> <span class="move-b">Nc6</span>
+          <span class="move-num">6.</span><span class="move-w">g3</span> <span class="move-b">cxd4 ←</span>
+          <span class="move-note">Black IQP on d5</span>
+        </div>
+      </div>
+      <div class="route-card">
+        <div class="route-card-head">Caro-Kann: Panov-Botvinnik</div>
+        <p><strong>White gets the IQP.</strong> One of the sharpest IQP positions in chess. White has full piece activity and Black must blockade quickly.</p>
+        <div class="moves">
+          <span class="move-num">1.</span><span class="move-w">e4</span> <span class="move-b">c6</span>
+          <span class="move-num">2.</span><span class="move-w">d4</span> <span class="move-b">d5</span>
+          <span class="move-num">3.</span><span class="move-w">exd5</span> <span class="move-b">cxd5</span>
+          <span class="move-num">4.</span><span class="move-w">c4</span> <span class="move-b">Nf6</span>
+          <span class="move-num">5.</span><span class="move-w">Nc3</span> <span class="move-b">e6</span>
+          <span class="move-num">6.</span><span class="move-w">Nf3</span> <span class="move-b">Be7</span>
+          <span class="move-num">7.</span><span class="move-w">cxd5 ←</span>
+          <span class="move-note">White IQP on d4</span>
+        </div>
+      </div>
+      <div class="route-card">
+        <div class="route-card-head">French: Tarrasch Variation</div>
+        <p><strong>Black gets the IQP.</strong> After 3.Nd2 c5 4.exd5 exd5, Black has an IQP but active development and a free game.</p>
+        <div class="moves">
+          <span class="move-num">1.</span><span class="move-w">e4</span> <span class="move-b">e6</span>
+          <span class="move-num">2.</span><span class="move-w">d4</span> <span class="move-b">d5</span>
+          <span class="move-num">3.</span><span class="move-w">Nd2</span> <span class="move-b">c5</span>
+          <span class="move-num">4.</span><span class="move-w">exd5</span> <span class="move-b">exd5 ←</span>
+          <span class="move-note">Black IQP on d5 immediately</span>
+        </div>
+      </div>
+      <div class="route-card">
+        <div class="route-card-head">Sicilian: Various Lines</div>
+        <p><strong>Both sides possible.</strong> Lines where White plays d4 and Black plays ...d5 (or White plays d4xc5 in certain structures) can produce IQP positions.</p>
+        <div class="moves">
+          <span class="move-num">1.</span><span class="move-w">e4</span> <span class="move-b">c5</span>
+          <span class="move-num">2.</span><span class="move-w">Nf3</span> <span class="move-b">e6</span>
+          <span class="move-num">3.</span><span class="move-w">d4</span> <span class="move-b">cxd4</span>
+          <span class="move-num">4.</span><span class="move-w">Nxd4</span> <span class="move-b">Nf6</span>
+          <span class="move-num">5.</span><span class="move-w">Nc3</span> <span class="move-b">d5</span>
+          <span class="move-num">6.</span><span class="move-w">exd5</span> <span class="move-b">exd5 ←</span>
+          <span class="move-note">Black IQP on d5 via Sicilian</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-label">Key Takeaway</div>
+      <p>The IQP arises in your actual openings. The Carlsbad structure you've been studying sometimes leads to IQP positions when Black pushes ...c5 — the ...c5 break (Plan E in the Black Carlsbad guide) creates exactly this structure. Mastering the IQP makes your Carlsbad knowledge richer immediately.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 04: PLANS FOR THE IQP SIDE -->
+  <div class="section">
+    <div class="section-num">04 — Playing With the IQP</div>
+    <h2>Five Plans for the IQP Side</h2>
+
+    <p>The side with the IQP must keep the initiative. Every plan revolves around a core principle: <strong>use the dynamic advantages before the endgame arrives.</strong> Piece activity, kingside pressure, and the d5 break are your primary tools. Avoid trading pieces — every swap makes the pawn weaker.</p>
+
+    <div class="plan-grid">
+      <div class="plan-card">
+        <div class="plan-card-icon">♙</div>
+        <h3>Plan A — The d5 Break</h3>
+        <p>Advance d4–d5 at the right moment, dissolving the IQP and opening the position. The released energy gives White a strong initiative.</p>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-icon">♗</div>
+        <h3>Plan B — The b1–h7 Battery</h3>
+        <p>Align queen and bishop on the b1–h7 diagonal. Threaten checkmate to force Black to weaken the kingside with ...g6, then attack the weakened dark squares.</p>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-icon">♞</div>
+        <h3>Plan C — Ne5 Outpost</h3>
+        <p>Install a knight on e5 — a dominant central post Black cannot attack with pawns without catastrophic weakening of f7 and e6.</p>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-icon">♖</div>
+        <h3>Plan D — Rook Lift</h3>
+        <p>Swing a rook along the third rank (Re3–h3 or Re3–g3) to add an attacker on the kingside without blocking the d-file.</p>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-icon">⚡</div>
+        <h3>Plan E — Piece Sacrifice on e6 or f7</h3>
+        <p>Tactical sacrifices on e6 (Bxe6) or f7 (Nxf7) are recurring IQP themes when the bishop battery is established and e5 is occupied.</p>
+      </div>
+    </div>
+
+    <!-- PLAN A DEEP DIVE -->
+    <div class="plan-section" data-num="A">
+      <h3>Plan A — The d5 Break</h3>
+      <span class="plan-tag">♙ Your Most Powerful Structural Weapon</span>
+      <p>The d5 advance is the IQP's defining move — it simultaneously dissolves the weakness and unleashes the pent-up piece energy. When you play d4–d5, you open the d-file, the e-file, and the a2–g8 diagonal in one stroke. If Black captures, your pieces flood in. If Black ignores it, d5–d6 is a passed pawn in the centre.</p>
+      <h4>Conditions for the d5 Break</h4>
+      <ul class="step-list">
+        <li><strong>Your pieces point at d5.</strong> Typically: knight on c3 or e5 controls d5, bishop on d3 or c4 eyes the a2–g8 diagonal, queen on d3 or e2 supports the advance.</li>
+        <li><strong>Black cannot recapture favourably.</strong> If ...Nxd5 gives you Nxd5 exd5 with a strong pawn, that's great. If ...exd5 opens the e-file for Black, reconsider.</li>
+        <li><strong>Your rooks are on the d- and e-files.</strong> After d5, the position opens immediately. Have your heavy pieces ready to exploit the opening lines.</li>
+        <li><strong>Black's knight is not on d5 blocking.</strong> The blockade prevents d5. Remove the blockading piece first (via exchanges or forcing moves) before pushing.</li>
+      </ul>
+      <div class="moves">
+        <span class="move-note">Typical d5 break sequence:</span><br>
+        <span class="move-num">...</span> <span class="move-w">Qd3</span> <span class="move-b">Nf6</span>
+        <span class="move-num">...</span> <span class="move-w">Re1</span> <span class="move-b">Re8</span>
+        <span class="move-num">...</span> <span class="move-w">Rd1</span> <span class="move-b">Qd7</span>
+        <span class="move-num">...</span> <span class="move-w">d5! ←</span>
+        <span class="move-note"> ← Position explodes open. e-file, d-file, a2-g8 diagonal all open at once.</span>
+      </div>
+    </div>
+
+    <!-- PLAN B DEEP DIVE -->
+    <div class="plan-section" data-num="B" style="margin-top:16px;">
+      <h3>Plan B — The b1–h7 Battery</h3>
+      <span class="plan-tag">♗ The Diagonal Attack</span>
+      <p>The most common IQP attacking formation is the queen-and-bishop battery aligned on the b1–h7 diagonal: bishop on c2 (or d3) and queen on d3 (or h7 in extreme cases), with the battery threatening mate on h7. Black is almost always forced to react — typically with ...g6, which weakens the dark squares around the king.</p>
+      <p>Once Black plays ...g6, two new plans open up: <strong>trading the dark-squared bishops</strong> (invade the now-weakened dark squares with the queen), or <strong>advancing h4–h5</strong> to lever open the h-file. The battery forces Black into a passive defensive posture even before any direct attack begins.</p>
+      <div class="moves">
+        <span class="move-w">Bc2</span> + <span class="move-w">Qd3 ←</span>
+        <span class="move-note"> ← Battery threatens Qxh7#. Black must play ...g6 or ...h6, weakening the kingside permanently.</span>
+      </div>
+      <div class="callout gold">
+        <div class="callout-label">Dark-Squared Bishop Trade</div>
+        <p>A key IQP attacking idea: after ...g6, White can trade the dark-squared bishops via Bg5 and Bxf6 (or Bh6 in some positions). With the bishop pair gone, the dark squares around Black's king — g7, h6, f6 — become invadable by the queen and knight. This is why in IQP positions, <strong>Black fights hard to keep their dark-squared bishop</strong>.</p>
+      </div>
+    </div>
+
+    <!-- PLAN C DEEP DIVE -->
+    <div class="plan-section" data-num="C" style="margin-top:16px;">
+      <h3>Plan C — The Ne5 Outpost</h3>
+      <span class="plan-tag">♞ The Central Monster</span>
+      <p>The e5 square is a natural outpost for the IQP side. The knight on e5 cannot be attacked by ...f6 without catastrophically weakening the e6 pawn and the f7 square. From e5 the knight supports the battery, threatens Nxf7, and controls key central squares.</p>
+      <p>The Ne5 outpost is so powerful that Black will often spend a move or two trying to exchange it — particularly with ...Nd7 or ...Nd5 to swap it off. As White, welcome these exchanges in many cases: after Nxd7 Qxd7, your d5 break becomes even stronger because Black no longer has a knight defending d5.</p>
+      <div class="callout warning">
+        <div class="callout-label">The f7 and e6 Sacrifices</div>
+        <p>When the Ne5 + battery is in place, always calculate Nxf7 Rxf7 Bxe6 and Bxe6 fxe6 Qxe6+. These are <em>thematic</em> IQP sacrifices — they recur across thousands of master games. Even when they don't quite work, the threat forces Black into passive defence that makes your position easier. Always check for them.</p>
+      </div>
+    </div>
+
+    <!-- PLAN D DEEP DIVE -->
+    <div class="plan-section" data-num="D" style="margin-top:16px;">
+      <h3>Plan D — Rook Lift to the Third Rank</h3>
+      <span class="plan-tag">♖ The Hidden Attacker</span>
+      <p>Once you have a rook on e1 (or d1) defending the IQP and supporting the centre, a second rook can swing up the third rank: <strong>Re3–h3</strong> or <strong>Re3–g3</strong>. This rook lift brings major firepower to the kingside without blocking any pieces. Combined with the battery (Plan B) and the Ne5 knight (Plan C), the rook lift often creates threats that are simply too many to handle simultaneously.</p>
+      <p>This pattern — rook on the third rank sliding across — is one of the signature moves in IQP attack positions. It appears in countless famous games: Polugaevsky, Kasparov, Kramnik all used it. The visual that should trigger it: your queen and bishop point at h7, your knight is on e5, and you have a rook that hasn't joined the attack yet. That rook belongs on the third rank.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 05: PLANS AGAINST THE IQP -->
+  <div class="section">
+    <div class="section-num">05 — Playing Against the IQP</div>
+    <h2>Four Plans for the Defending Side</h2>
+
+    <p>Playing against the IQP requires patience, precision, and a clear positional plan. You have a long-term structural advantage — <em>but the middlegame belongs to your opponent</em>. Your job is to survive the attack, neutralise the dynamic play, trade pieces, and convert your structural edge in the endgame.</p>
+
+    <div class="plan-grid">
+      <div class="plan-card against">
+        <div class="plan-card-icon">♞</div>
+        <h3>Plan A — The Blockade</h3>
+        <p>Place a knight on d5 in front of the IQP. The pawn cannot advance, and the knight cannot be driven away by pawns. This is Black's most important defensive idea.</p>
+      </div>
+      <div class="plan-card against">
+        <div class="plan-card-icon">⚖️</div>
+        <h3>Plan B — Trade Pieces</h3>
+        <p>Every piece exchange makes the IQP weaker. Trade minor pieces, especially the IQP side's attacking pieces. A simplified endgame with the IQP is almost always winning for the defender.</p>
+      </div>
+      <div class="plan-card against">
+        <div class="plan-card-icon">♜</div>
+        <h3>Plan C — Rooks on d- and c-files</h3>
+        <p>Put rooks on d8 and c8 to double up on the IQP's file and the adjacent open file. Create direct pressure that forces the IQP side to use pieces for defence rather than attack.</p>
+      </div>
+      <div class="plan-card against">
+        <div class="plan-card-icon">🛡️</div>
+        <h3>Plan D — Prevent d5</h3>
+        <p>Control the d5 square at all costs. Exchanging pieces that support d5 makes d4–d5 impossible. When the break is permanently prevented, the IQP becomes a pure weakness.</p>
+      </div>
+    </div>
+
+    <!-- BLOCKADE DEEP DIVE -->
+    <div class="plan-section against" data-num="A">
+      <h3>Plan A — The Blockade</h3>
+      <span class="plan-tag">♞ The Most Important Defensive Idea in Chess</span>
+      <p>Nimzowitsch called the blockade one of the most important strategic concepts in chess, and the IQP position is its perfect demonstration. When you plant a knight on d5 — directly in front of the isolated pawn — you simultaneously stop the d5 break, give the knight a permanent central post, and immobilise the IQP as a long-term target.</p>
+      <p>The blockading knight on d5 is powerful for a specific structural reason: <strong>the IQP cannot attack it</strong>. The d4 pawn has no c- or e-pawn neighbours, so it can never play c5 or e5 to drive the knight away. The knight sits on d5 untouchable by pawns for the entire game. It reaches into White's position, controls c3, e3, f4, b6, and anchors the entire defensive structure.</p>
+      <h4>How to Establish the Blockade</h4>
+      <ul class="step-list against">
+        <li><strong>Develop the knight to f6 or c6 first.</strong> From there it can reroute to d5 via e4 or d4 with tempo-gaining threats along the way.</li>
+        <li><strong>Clear the path.</strong> Sometimes the d5 square is defended by White's bishop (on c4 or b3). Exchange or drive away that bishop before jumping to d5.</li>
+        <li><strong>Rook on d8 as support.</strong> After the knight occupies d5, place a rook on d8 to back it up. The rook on d8 + knight on d5 is a powerful combination that pressures d4 from two directions.</li>
+        <li><strong>Don't give it up lightly.</strong> The blockading knight is your most important piece. Don't exchange it for a bishop without significant compensation — you want it on d5 for the long haul.</li>
+      </ul>
+      <div class="callout tip">
+        <div class="callout-label">The Key Trade — Dark-Squared Bishops</div>
+        <p>One important asymmetry: <strong>Black often wants to trade the dark-squared bishops</strong>. The IQP side's dark-squared bishop is often passive (blocked by the d4 pawn). Trading it for Black's active bishop relieves the pressure on the kingside and gives Black's pieces more room. White fights to keep the dark-squared bishop and use it in the attack; Black fights to swap it off.</p>
+      </div>
+    </div>
+
+    <!-- ENDGAME CONVERSION -->
+    <div class="plan-section against" data-num="B" style="margin-top:16px;">
+      <h3>Plan B — Simplify to the Endgame</h3>
+      <span class="plan-tag">⚖️ Time Is on Your Side</span>
+      <p>The Gallagher Rule tells you everything: with 4 minor pieces each, the IQP is an advantage. With 2 or fewer, it's a liability. This means your entire strategy as the defending side is to <strong>trade pieces</strong>. Every swap shifts the evaluation in your favour.</p>
+      <p>The key exchanges to seek: <strong>trade queens</strong> (eliminates the main attacking piece and eliminates mating threats), <strong>trade knights</strong> (removes the Ne5 threat and reduces the IQP side's piece activity), and <strong>swap the dark-squared bishops</strong> (removes the battery's attacking partner).</p>
+      <p>Caution: you need to keep some heavy pieces if you want to win the endgame, not just draw. Without rooks, the IQP side can bring their king to d4 and fortress around the pawn. Keep at least one pair of rooks to attack the isolated pawn directly in the endgame.</p>
+      <div class="callout warning">
+        <div class="callout-label">Don't Trade Too Many Rooks</div>
+        <p>A common mistake: Black trades everything including rooks, reaches a pure minor piece ending, and finds it very difficult to actually win the d4 pawn because White's king defends it perfectly. Keep enough heavy pieces to put the IQP under direct fire. The ideal endgame for Black: queen + rooks vs queen + rooks, with the IQP as a permanent target.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 06: PIECE ROLES BOTH SIDES -->
+  <div class="section">
+    <div class="section-num">06 — Piece Roles</div>
+    <h2>Where Every Piece Belongs</h2>
+
+    <table class="ptable">
+      <thead><tr><th>Piece</th><th>IQP Side (Active)</th><th>Defending Side (Blockade)</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>♘ Knight 1</td>
+          <td>e5 — the dominant central outpost. Threatens Nxf7, supports battery.</td>
+          <td>d5 — the blockader. Must not be traded away without compensation.</td>
+        </tr>
+        <tr>
+          <td>♘ Knight 2</td>
+          <td>c3 — supports d5 advance, defends IQP indirectly.</td>
+          <td>f6 — defends e4/d5, watches e5 so White can't simply occupy it.</td>
+        </tr>
+        <tr>
+          <td>♗ Light-Squared Bishop</td>
+          <td>c4 or d3 — on the b1–h7 diagonal, part of the battery. KEY piece.</td>
+          <td>e7 or d6 — solid defensive square. Avoid getting it trapped behind pawns.</td>
+        </tr>
+        <tr>
+          <td>♗ Dark-Squared Bishop</td>
+          <td>g5 or e3 — pins Black's pieces, defends e3, eyes queenside.</td>
+          <td>d7 or b7 — fight to keep it. The IQP side wants to swap this bishop; you want to keep it.</td>
+        </tr>
+        <tr>
+          <td>♖ Rook 1</td>
+          <td>d1 — supports the IQP and the d5 break. Essential.</td>
+          <td>d8 — attacks d4 from behind the blockading knight. Ideal.</td>
+        </tr>
+        <tr>
+          <td>♖ Rook 2</td>
+          <td>e1 — semi-open e-file, supports Ne5, ready for 3rd-rank lift.</td>
+          <td>c8 — presses the semi-open c-file, creates second front against IQP.</td>
+        </tr>
+        <tr>
+          <td>♕ Queen</td>
+          <td>d3 — part of the battery pointing at h7. Or e2 for flexible rerouting.</td>
+          <td>d7, c7, or e7 — flexible defence. After Qd7, defends d5 knight and prepares Qc6 or Qe6 to attack IQP.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 07: ENDGAME -->
+  <div class="section">
+    <div class="section-num">07 — Endgame Principles</div>
+    <h2>The IQP in the Endgame</h2>
+
+    <p>Once the pieces come off the board, the IQP transforms from a dynamic weapon into a structural liability. This phase change is the defining strategic concept of the entire structure — and recognising when the endgame has arrived is the most critical skill for both sides.</p>
+
+    <table class="ptable">
+      <thead><tr><th>Principle</th><th>IQP Side</th><th>Defending Side</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>General goal</td>
+          <td>Avoid the endgame entirely. Win in the middlegame or dissolve the IQP with d5 first.</td>
+          <td>Reach the endgame with pieces on the board. The IQP is structurally losing.</td>
+        </tr>
+        <tr>
+          <td>King activity</td>
+          <td>King can try to march to d3 to defend the pawn actively once queens are off.</td>
+          <td>King heads to d5 to support the blockade and join the attack on d4.</td>
+        </tr>
+        <tr>
+          <td>Rook on d-file</td>
+          <td>Keep a rook on d1 to defend d4. Without it, the pawn is indefensible.</td>
+          <td>Rooks on d8 and c8 create dual pressure. Forcing the rook to d1 defence is a strategic victory.</td>
+        </tr>
+        <tr>
+          <td>Pawn islands</td>
+          <td>Two pawn islands (a2-b2 and d4 isolated, f2-g2-h2). The IQP is an extra island.</td>
+          <td>One pawn island (a7-b7-c6-e6-f7-g7-h7 typical). Superior long-term structure.</td>
+        </tr>
+        <tr>
+          <td>Endgame technique</td>
+          <td>If you must reach an endgame, keep the d-pawn protected and look for queenside counterplay with b4-b5.</td>
+          <td>King + rook to d5 and d8. Zugzwang the defender of d4. Win the pawn, then win the game.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout gold">
+      <div class="callout-label">Karpov's Method — The Perfect Anti-IQP Technique</div>
+      <p>Anatoly Karpov was the greatest player of the 20th century at handling the anti-IQP side. His method: blockade with the knight, trade all attacking pieces, march the king to d5 in the endgame, and grind the pawn down with rooks. Study Karpov's games against Kasparov in their 1985 match — they are the definitive textbook on IQP defence and conversion.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 08: MISTAKES -->
+  <div class="section">
+    <div class="section-num">08 — Common Mistakes</div>
+    <h2>What Both Sides Get Wrong</h2>
+
+    <div class="callout warning" style="margin-bottom:14px;">
+      <div class="callout-label">IQP Side Mistake 1 — Trading Pieces Passively</div>
+      <p>Exchanging pieces when you don't gain anything concrete. Every trade that simplifies without opening lines or creating threats makes the IQP weaker. Refuse trades unless you gain material, open a key file, or execute the d5 break.</p>
+    </div>
+    <div class="callout warning" style="margin-bottom:14px;">
+      <div class="callout-label">IQP Side Mistake 2 — Allowing the Blockade</div>
+      <p>Letting Black's knight settle comfortably on d5 without attempting to dislodge it or make the d5 advance. Once the blockade is solid, the dynamic advantage evaporates. Watch for ...Nd5 moves and challenge or undermine the knight immediately.</p>
+    </div>
+    <div class="callout warning" style="margin-bottom:14px;">
+      <div class="callout-label">IQP Side Mistake 3 — Missing the d5 Moment</div>
+      <p>The d5 break has a window of opportunity. Push it too late and Black has consolidated the blockade. Push it too early and Black captures favourably. The right moment is when your pieces all point at d5 and Black cannot recapture without losing material or opening lines against their king.</p>
+    </div>
+    <div class="callout warning" style="margin-bottom:14px;">
+      <div class="callout-label">Defending Side Mistake 1 — Giving Up the Blockade</div>
+      <p>Trading the d5 knight away without a concrete reason. A knight that leaves d5 permanently cedes the blockade, which allows d4–d5 and often a devastating attack. Only release the blockade when you gain material or a tangible positional concession in return.</p>
+    </div>
+    <div class="callout warning" style="margin-bottom:14px;">
+      <div class="callout-label">Defending Side Mistake 2 — Trading Too Many Rooks</div>
+      <p>Simplifying into a pure minor piece ending while the IQP is still alive. Without rooks, the IQP side's king can march to d3 and the pawn becomes very hard to win. Keep at least one pair of rooks to attack d4 from behind.</p>
+    </div>
+    <div class="callout warning">
+      <div class="callout-label">Defending Side Mistake 3 — Counterattacking Too Early</div>
+      <p>Trying to attack before the IQP side's initiative is neutralised. Queenside counterplay (...a5, ...b5) can be powerful but only after the blockade is established and the king is safe. Premature counterattack gives the IQP side more open lines to use in the attack.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 09: DECISION FLOWCHARTS -->
+  <div class="section">
+    <div class="section-num">09 — Quick Reference</div>
+    <h2>Decision Framework — Both Sides</h2>
+
+    <p style="font-size:15px;color:var(--crimson-bright);font-family:'IBM Plex Mono',monospace;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">▸ If You Have the IQP</p>
+    <table class="ptable">
+      <thead><tr><th>Question</th><th>Yes → Action</th><th>No → Action</th></tr></thead>
+      <tbody>
+        <tr><td>Are Black's pieces all pointing at d4?</td><td>Prioritise d5 break immediately — prevent the blockade.</td><td>Build up the battery and Ne5 before pushing.</td></tr>
+        <tr><td>Is the d5 break available?</td><td>Calculate carefully — is it the right moment? All pieces pointing at d5?</td><td>Use Plans B, C, D. Build kingside pressure.</td></tr>
+        <tr><td>Is Ne5 available safely?</td><td>Play it. Combine with Qd3 battery immediately.</td><td>Reroute knight to better support d5 or the battery.</td></tr>
+        <tr><td>Is opponent offering piece exchanges?</td><td>Refuse unless it opens lines or wins material. Gallagher Rule applies.</td><td>Look for tactical shots — e6 and f7 sacrifices.</td></tr>
+        <tr><td>Are we heading to an endgame?</td><td>Find the d5 break first, or create immediate attacking threats. Avoid the endgame.</td><td>Continue building. Keep all pieces on the board.</td></tr>
+      </tbody>
+    </table>
+
+    <p style="font-size:15px;color:var(--green-light);font-family:'IBM Plex Mono',monospace;letter-spacing:0.1em;text-transform:uppercase;margin:28px 0 12px;">▸ If You Are Playing Against the IQP</p>
+    <table class="ptable against">
+      <thead><tr><th>Question</th><th>Yes → Action</th><th>No → Action</th></tr></thead>
+      <tbody>
+        <tr><td>Is d5 available for your knight?</td><td>Play ...Nd5 immediately. Establish the blockade as the top priority.</td><td>Route your knight toward d5. Clear blocking pieces.</td></tr>
+        <tr><td>Is the blockade established?</td><td>Now trade pieces systematically. Target the d4 pawn with rooks.</td><td>Stop everything and fix the blockade first.</td></tr>
+        <tr><td>Is opponent threatening d5 break?</td><td>Control d5 with knight/bishop/queen immediately. Do not let it happen.</td><td>Proceed with piece trading and endgame planning.</td></tr>
+        <tr><td>Can you trade the dark-squared bishops?</td><td>Yes — do it. This removes the battery's other piece and kills kingside threats.</td><td>Keep your dark-squared bishop active and flexible.</td></tr>
+        <tr><td>Are queens still on the board?</td><td>Offer to trade them if your king is safe. Endgame strongly favours you.</td><td>Endgame is winning — bring the king to d5, rooks to d-file.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 10: YOUTUBE -->
+  <div class="section" style="padding-bottom:56px;">
+    <div class="section-num">10 — Study Resources</div>
+    <h2>Recommended YouTube Resources</h2>
+
+    <p style="color:var(--cream-dim);margin-bottom:28px;">The IQP is covered better on YouTube than almost any other pawn structure. Hanging Pawns (Stjepan Tomić — your primary resource) has exceptional IQP coverage. Work through this sequence over 3–4 study sessions.</p>
+
+    <div class="yt-phase">Phase 1 — Start Here · Foundation</div>
+
+    <div class="yt-card">
+      <div style="font-size:20px;padding-top:2px;">🎯</div>
+      <div>
+        <div class="yt-title">Hanging Pawns — "The Isolated Queen's Pawn — Introduction" (Pawn Structure Series)</div>
+        <div class="yt-meta">Search: "Hanging Pawns Isolated Queen's Pawn introduction" · ~30–40 min</div>
+        <p class="yt-desc">Stjepan Tomić's IQP introduction is the single best starting point available. He covers the static vs dynamic duality, the key plans for both sides, and explains the Gallagher Rule. Perfect entry for your level.</p>
+      </div>
+      <span class="badge badge-must">⭐ MUST</span>
+    </div>
+
+    <div class="yt-card">
+      <div style="font-size:20px;padding-top:2px;">📖</div>
+      <div>
+        <div class="yt-title">GM Naroditsky — "The Isolated Queen's Pawn" (Danya / Chess.com)</div>
+        <div class="yt-meta">Search: "Naroditsky isolated queen pawn structure" · ~35 min</div>
+        <p class="yt-desc">Danya explains both sides in a live game format — exactly how you love to learn. His real-time explanations of the d5 break timing and blockade technique are clearer than any textbook.</p>
+      </div>
+      <span class="badge badge-must">⭐ MUST</span>
+    </div>
+
+    <div class="yt-phase">Phase 2 — Plans in Detail</div>
+
+    <div class="yt-card">
+      <div style="font-size:20px;padding-top:2px;">♙</div>
+      <div>
+        <div class="yt-title">Hanging Pawns — "IQP: Attack with the Isolated Queen's Pawn"</div>
+        <div class="yt-meta">Search: "Hanging Pawns attack isolated queen's pawn" · ~35 min</div>
+        <p class="yt-desc">Deep dive into all five attacking plans for the IQP side — the d5 break, battery, Ne5, rook lift, and sacrifices on e6/f7. Essential after the introduction.</p>
+      </div>
+      <span class="badge badge-high">HIGH</span>
+    </div>
+
+    <div class="yt-card">
+      <div style="font-size:20px;padding-top:2px;">♟</div>
+      <div>
+        <div class="yt-title">Hanging Pawns — "IQP: Defending Against the Isolated Queen's Pawn"</div>
+        <div class="yt-meta">Search: "Hanging Pawns defend against isolated queen's pawn" · ~35 min</div>
+        <p class="yt-desc">The blockade, piece trading, and endgame conversion — Tomić covers all four defensive plans with master game examples. Karpov's technique is featured.</p>
+      </div>
+      <span class="badge badge-high">HIGH</span>
+    </div>
+
+    <div class="yt-card">
+      <div style="font-size:20px;padding-top:2px;">📺</div>
+      <div>
+        <div class="yt-title"><a href="https://www.youtube.com/watch?v=zISaJ0fHa2M" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">The ONLY IQP Video YOU Need to Watch — ChessGeek ↗</a></div>
+        <div class="yt-meta"><a href="https://www.youtube.com/watch?v=zISaJ0fHa2M" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:3px;opacity:0.85;">youtube.com/watch?v=zISaJ0fHa2M</a> · ~45 min · Free PGN files available</div>
+        <p class="yt-desc">A comprehensive single-video treatment covering both sides of the IQP with annotated master games. Includes free downloadable PGN files — excellent for study over a chess board.</p>
+      </div>
+      <span class="badge badge-high">HIGH</span>
+    </div>
+
+    <div class="yt-phase">Phase 3 — Deep Study</div>
+
+    <div class="yt-card">
+      <div style="font-size:20px;padding-top:2px;">🏆</div>
+      <div>
+        <div class="yt-title"><a href="https://www.youtube.com/watch?v=tcA51WrN2Pw" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">IQP Masterclass — "Excelling in Isolated Queen's Pawn Positions" (Full Course) ↗</a></div>
+        <div class="yt-meta"><a href="https://www.youtube.com/watch?v=tcA51WrN2Pw" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:3px;opacity:0.85;">youtube.com/watch?v=tcA51WrN2Pw</a> · ~90 min · January 2022</div>
+        <p class="yt-desc">A full course treatment of the IQP — attack, defence, endgame, and opening entry points. Goes deeper than any single video. Watch this after completing Phase 1 and 2.</p>
+      </div>
+      <span class="badge badge-deep">LONG-TERM</span>
+    </div>
+
+    <div class="yt-card">
+      <div style="font-size:20px;padding-top:2px;">♔</div>
+      <div>
+        <div class="yt-title">St. Louis Chess Club — "Karpov vs Kasparov IQP" (GM Seirawan annotation)</div>
+        <div class="yt-meta">Search: "Seirawan Karpov Kasparov IQP St Louis Chess Club" · Master game study</div>
+        <p class="yt-desc">Karpov's anti-IQP technique is the gold standard. Seirawan annotating these games is a masterclass in endgame conversion from a structural advantage. Watch this to understand what the endgame looks like in practice.</p>
+      </div>
+      <span class="badge badge-deep">LONG-TERM</span>
+    </div>
+
+    <div class="yt-phase">Suggested Study Sequence</div>
+    <table class="ptable">
+      <thead><tr><th>#</th><th>Resource</th><th>Priority</th><th>When</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Hanging Pawns — IQP Introduction</td><td><span class="badge badge-must" style="font-size:10px;">⭐ MUST</span></td><td>Session 1</td></tr>
+        <tr><td>2</td><td>Naroditsky — IQP Structure</td><td><span class="badge badge-must" style="font-size:10px;">⭐ MUST</span></td><td>Session 1</td></tr>
+        <tr><td>3</td><td>Hanging Pawns — Attack with IQP</td><td><span class="badge badge-high" style="font-size:10px;">HIGH</span></td><td>Session 2</td></tr>
+        <tr><td>4</td><td>Hanging Pawns — Defend vs IQP</td><td><span class="badge badge-high" style="font-size:10px;">HIGH</span></td><td>Session 2</td></tr>
+        <tr><td>5</td><td>ChessGeek — ONLY IQP Video</td><td><span class="badge badge-high" style="font-size:10px;">HIGH</span></td><td>Session 3</td></tr>
+        <tr><td>6</td><td>IQP Masterclass (90 min full course)</td><td><span class="badge badge-deep" style="font-size:10px;">DEEP</span></td><td>Ongoing</td></tr>
+        <tr><td>7</td><td>Karpov vs Kasparov (Seirawan)</td><td><span class="badge badge-deep" style="font-size:10px;">DEEP</span></td><td>Ongoing</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip" style="margin-top:28px;">
+      <div class="callout-label">How This Connects to Your Other Guides</div>
+      <p>The IQP structure links directly to everything you've been building. In the Carlsbad Black guide, Plan E (the ...c5 break) creates an IQP for Black. In the Carlsbad White guide, Plan C (the e4 break) can dissolve the Carlsbad into IQP-adjacent positions. And the Botvinnik's Maroczy Bind (Plan C) is specifically designed to <em>prevent</em> Black from getting a good IQP. All four guides are now speaking to each other — that's deep chess understanding.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    ♙ Isolated Queen's Pawn · Complete Structure Guide · Both Sides · Openings: QGA · Nimzo · Tarrasch · Panov · French
+  </div>
+
+</div>
+
+<!-- BOARD RENDERING — Lichess cburnett pieces -->
+<script>
+  const SQ = 62;
+  const SET = 'cburnett';
+  function pu(c,t){ return `https://lichess1.org/assets/piece/${SET}/${c}${t}.svg`; }
+
+  function drawBoard(id, pos, hlGold, hlTeal, hlRed, hlBlue, borderColor) {
+    const wrap = document.getElementById(id);
+    if (!wrap) return;
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:flex-start;';
+
+    const files=['a','b','c','d','e','f','g','h'];
+    const ranks=['8','7','6','5','4','3','2','1'];
+
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;flex-direction:row;align-items:flex-start;';
+
+    const rl = document.createElement('div');
+    rl.style.cssText = 'display:flex;flex-direction:column;padding-right:5px;';
+    ranks.forEach(r=>{
+      const d=document.createElement('div');
+      d.style.cssText=`height:${SQ}px;display:flex;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#9a8e82;`;
+      d.textContent=r; rl.appendChild(d);
+    });
+
+    const bcol=document.createElement('div');
+    bcol.style.cssText='display:flex;flex-direction:column;';
+
+    const grid=document.createElement('div');
+    grid.style.cssText=`display:grid;grid-template-columns:repeat(8,${SQ}px);grid-template-rows:repeat(8,${SQ}px);border:2px solid ${borderColor};box-shadow:0 10px 36px rgba(0,0,0,0.7);`;
+
+    ranks.forEach((rank,ri)=>{
+      files.forEach((file,fi)=>{
+        const key=file+rank;
+        const sq=document.createElement('div');
+        const light=(ri+fi)%2===0;
+        let bg=light?'#f0d9b5':'#b58863';
+        if(hlGold && hlGold.includes(key)) bg=light?'rgba(220,160,40,0.55)':'rgba(180,120,20,0.62)';
+        if(hlTeal && hlTeal.includes(key)) bg=light?'rgba(60,170,160,0.5)':'rgba(40,135,128,0.58)';
+        if(hlRed  && hlRed.includes(key))  bg=light?'rgba(185,40,50,0.48)':'rgba(150,28,38,0.55)';
+        if(hlBlue && hlBlue.includes(key)) bg=light?'rgba(60,120,200,0.5)':'rgba(40,90,165,0.58)';
+        sq.style.cssText=`width:${SQ}px;height:${SQ}px;display:flex;align-items:center;justify-content:center;background:${bg};position:relative;`;
+        const piece=pos[key];
+        if(piece){
+          const img=document.createElement('img');
+          img.src=pu(piece[0],piece[1]);
+          img.style.cssText=`width:${SQ-3}px;height:${SQ-3}px;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.55));pointer-events:none;`;
+          sq.appendChild(img);
+        }
+        grid.appendChild(sq);
+      });
+    });
+
+    const fl=document.createElement('div');
+    fl.style.cssText='display:flex;padding-top:4px;';
+    files.forEach(f=>{
+      const d=document.createElement('div');
+      d.style.cssText=`width:${SQ}px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#9a8e82;`;
+      d.textContent=f; fl.appendChild(d);
+    });
+
+    bcol.appendChild(grid); bcol.appendChild(fl);
+    row.appendChild(rl); row.appendChild(bcol);
+    wrap.appendChild(row);
+  }
+
+  // Board 1: Classic White IQP position
+  // White IQP on d4, typical attacking setup: Bc2+Qd3 battery, Ne5, Re1, Rd1, Nc3
+  const iqpPos = {
+    'a8':['b','R'],'b8':null,     'c8':['b','R'],'d8':['b','Q'],
+    'e8':['b','K'],'f8':null,     'g8':null,     'h8':null,
+    'a7':['b','P'],'b7':['b','B'],'c7':null,     'd7':null,
+    'e7':['b','B'],'f7':['b','P'],'g7':['b','P'],'h7':['b','P'],
+    'a6':['b','P'],'b6':null,'c6':['b','N'],'d6':null,
+    'e6':['b','P'],'f6':['b','N'],'g6':null,'h6':null,
+    'a5':null,'b5':null,'c5':null,'d5':null,
+    'e5':['w','N'],'f5':null,'g5':null,'h5':null,
+    'a4':null,'b4':null,'c4':null,'d4':['w','P'],
+    'e4':null,'f4':null,'g4':null,'h4':null,
+    'a3':null,'b3':null,'c3':['w','N'],'d3':['w','Q'],
+    'e3':null,'f3':null,'g3':null,'h3':null,
+    'a2':['w','P'],'b2':['w','P'],'c2':['w','B'],'d2':null,
+    'e2':null,'f2':['w','P'],'g2':['w','P'],'h2':['w','P'],
+    'a1':['w','R'],'b1':null,'c1':['w','B'],'d1':['w','R'],
+    'e1':['w','R'],'f1':null,'g1':['w','K'],'h1':null,
+  };
+
+  drawBoard('board-iqp', iqpPos,
+    ['d4'],          // gold: the IQP itself
+    ['e5','c5'],     // teal: White outpost targets
+    ['d5'],          // red: the blockade square
+    null,
+    '#9b2335'
+  );
+
+  // Board 2: The Blockade position — Black knight on d5
+  const blockadePos = {
+    'a8':['b','R'],'b8':null,     'c8':['b','R'],'d8':['b','Q'],
+    'e8':['b','K'],'f8':null,     'g8':null,     'h8':null,
+    'a7':['b','P'],'b7':['b','B'],'c7':null,     'd7':null,
+    'e7':['b','B'],'f7':['b','P'],'g7':['b','P'],'h7':['b','P'],
+    'a6':['b','P'],'b6':null,'c6':['b','N'],'d6':null,
+    'e6':['b','P'],'f6':['b','N'],'g6':null,'h6':null,
+    'a5':null,'b5':null,'c5':null,'d5':['b','N'],  // ← BLOCKADER
+    'e5':null,'f5':null,'g5':null,'h5':null,
+    'a4':null,'b4':null,'c4':null,'d4':['w','P'],
+    'e4':null,'f4':null,'g4':null,'h4':null,
+    'a3':null,'b3':null,'c3':['w','N'],'d3':['w','Q'],
+    'e3':null,'f3':['w','N'],'g3':null,'h3':null,
+    'a2':['w','P'],'b2':['w','P'],'c2':['w','B'],'d2':null,
+    'e2':null,'f2':['w','P'],'g2':['w','P'],'h2':['w','P'],
+    'a1':['w','R'],'b1':null,'c1':['w','B'],'d1':['w','R'],
+    'e1':['w','R'],'f1':null,'g1':['w','K'],'h1':null,
+  };
+
+  drawBoard('board-blockade', blockadePos,
+    null,
+    null,
+    ['d4'],          // red: the blocked IQP — now a weakness
+    ['d5'],          // blue: the blockading knight on d5
+    '#4a9468'
+  );
+</script>
+
+</body>
+</html>
