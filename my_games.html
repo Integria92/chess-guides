@@ -42,8 +42,12 @@
   .fbtn.fd.on{background:var(--draw);border-color:var(--draw);}
 
   /* GRID */
-  .grid-wrap{padding:20px 20px 0;}
-  .tourney-section{margin-bottom:26px;}
+  /* ── SPLIT PANE LAYOUT ── */
+  html, body { height: 100%; }
+  .split-wrapper { display: flex; flex-direction: column; height: calc(100vh - 54px - 58px); }
+  .grid-section  { flex: 0 0 auto; overflow-y: auto; height: 260px; min-height: 80px; }
+  .grid-wrap { padding: 16px 20px 12px; }
+  .embed-panel { flex: 1; background: var(--surface); border-top: 2px solid var(--gold); display: flex; flex-direction: column; overflow: hidden; min-height: 160px; }  .tourney-section{margin-bottom:26px;}
   .tourney-hdr{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--goldb);margin-bottom:10px;display:flex;align-items:center;gap:12px;}
   .tourney-hdr::after{content:'';flex:1;height:1px;background:var(--border);}
   .tourney-rec{font-size:9px;color:var(--creamd);margin-left:-4px;}
@@ -74,12 +78,12 @@
   .eco-badge{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:.08em;margin-top:2px;}
 
   /* DRAG */
-  .drag-handle{height:6px;background:var(--border);cursor:ns-resize;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;user-select:none;}
-  .drag-handle:hover{background:var(--gold);}
-  .drag-handle::before{content:'';width:36px;height:2px;background:var(--creamd);border-radius:2px;opacity:.5;}
+  .drag-handle { height: 10px; background: var(--s2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); cursor: ns-resize; display: flex; align-items: center; justify-content: center; flex-shrink: 0; user-select: none; gap: 6px; transition: background .15s; }
+  .drag-handle:hover { background: rgba(201,148,58,.15); border-color: var(--gold); }
+  .drag-handle::before { content: '⣿'; color: var(--creamd); font-size: 10px; opacity: .4; letter-spacing: 2px; }
+  .drag-handle::after  { content: 'drag to resize'; font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: var(--creamd); opacity: .35; }
 
   /* EMBED PANEL */
-  .embed-panel{position:sticky;bottom:0;background:var(--surface);border-top:2px solid var(--gold);display:flex;flex-direction:column;z-index:100;height:460px;min-height:160px;max-height:85vh;}
   .embed-hdr{padding:10px 18px 8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap;}
   .embed-tourney{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);}
   .embed-title{font-family:'Cinzel',serif;font-size:17px;font-weight:700;color:var(--cream);}
@@ -161,6 +165,8 @@
   </div>
 </div>
 
+<div class="split-wrapper" id="splitWrapper">
+<div class="grid-section" id="gridSection">
 <div class="grid-wrap">
 
   <div class="tourney-section">
@@ -240,7 +246,8 @@
     </div>
   </div>
 
-</div>
+</div><!-- /grid-wrap -->
+</div><!-- /grid-section -->
 
 <div class="drag-handle" id="dragHandle"></div>
 
@@ -295,6 +302,7 @@
   <span>Chess Guide Library · My OTB Games 2026 · chess.js move viewer</span>
   <a href="https://lichess.org/study/M1ROasBT" target="_blank" rel="noopener">Study on Lichess ↗</a>
 </footer>
+</div><!-- /split-wrapper -->
 
 <script>
 /* ── CONFIG ── */
@@ -539,11 +547,11 @@ document.addEventListener('keydown', e => {
    BOARD SIZING — fits available panel height
 ═══════════════════════════════════════════ */
 function sizeBigBoard() {
-  const panel   = document.getElementById('embedPanel');
-  const hdrH    = document.querySelector('.embed-hdr').offsetHeight;
-  const navH    = 60; // controls + labels
-  const avail   = panel.offsetHeight - hdrH - navH;
-  boardSize = Math.max(200, Math.min(Math.floor(avail / 8) * 8, 440));
+  const panel  = document.getElementById('embedPanel');
+  const hdrH   = document.querySelector('.embed-hdr').offsetHeight || 60;
+  const navH   = 60;
+  const avail  = panel.offsetHeight - hdrH - navH;
+  boardSize = Math.max(200, Math.min(Math.floor(avail / 8) * 8, 480));
 }
 
 /* ═══════════════════════════════════════════
@@ -584,20 +592,41 @@ function filter(type, btn) {
 /* ═══════════════════════════════════════════
    RESIZABLE PANEL
 ═══════════════════════════════════════════ */
-const panel = document.getElementById('embedPanel');
-const handle = document.getElementById('dragHandle');
+/* ═══════════════════════════════════════════
+   SPLIT PANE RESIZE
+   Dragging down = more space for game grid
+   Dragging up   = more space for viewer board
+═══════════════════════════════════════════ */
+const handle   = document.getElementById('dragHandle');
+const gridSec  = document.getElementById('gridSection');
+const wrapper  = document.getElementById('splitWrapper');
 let drag=false, sy=0, sh=0;
-handle.addEventListener('mousedown', e=>{drag=true;sy=e.clientY;sh=panel.offsetHeight;document.body.style.cursor='ns-resize';document.body.style.userSelect='none';});
-document.addEventListener('mousemove', e=>{
-  if(!drag)return;
-  const h=Math.min(Math.max(sh+(sy-e.clientY),160),window.innerHeight*.85);
-  panel.style.height=h+'px';
-  if(moves.length){sizeBigBoard();renderPosition();}
-});
-document.addEventListener('mouseup',()=>{if(!drag)return;drag=false;document.body.style.cursor='';document.body.style.userSelect='';});
-handle.addEventListener('touchstart',e=>{drag=true;sy=e.touches[0].clientY;sh=panel.offsetHeight;},{passive:true});
-document.addEventListener('touchmove',e=>{if(!drag)return;const h=Math.min(Math.max(sh+(sy-e.touches[0].clientY),160),window.innerHeight*.85);panel.style.height=h+'px';if(moves.length){sizeBigBoard();renderPosition();}},{passive:true});
-document.addEventListener('touchend',()=>{drag=false;});
+
+function startDrag(y) {
+  drag = true; sy = y; sh = gridSec.offsetHeight;
+  document.body.style.cursor    = 'ns-resize';
+  document.body.style.userSelect = 'none';
+}
+function doDrag(y) {
+  if (!drag) return;
+  const wrapH  = wrapper.offsetHeight - handle.offsetHeight;
+  const newH   = Math.max(80, Math.min(sh + (y - sy), wrapH - 160));
+  gridSec.style.height = newH + 'px';
+  if (moves.length) { sizeBigBoard(); renderPosition(); }
+}
+function endDrag() {
+  if (!drag) return;
+  drag = false;
+  document.body.style.cursor    = '';
+  document.body.style.userSelect = '';
+}
+
+handle.addEventListener('mousedown', e => startDrag(e.clientY));
+document.addEventListener('mousemove', e => doDrag(e.clientY));
+document.addEventListener('mouseup', endDrag);
+handle.addEventListener('touchstart', e => startDrag(e.touches[0].clientY), { passive:true });
+document.addEventListener('touchmove',  e => doDrag(e.touches[0].clientY),  { passive:true });
+document.addEventListener('touchend', endDrag);
 </script>
 </body>
 </html>
