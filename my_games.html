@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My OTB Games 2026 — Chess Guide Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Lora:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0a0c0f;
+    --surface:   #111520;
+    --surface2:  #161c2c;
+    --border:    #232c40;
+    --gold:      #c9943a;
+    --gold-b:    #e8b84a;
+    --cream:     #eee8dc;
+    --cream-d:   #8a8275;
+    --win:       #3dba6f;
+    --win-bg:    rgba(61,186,111,0.12);
+    --loss:      #c05a4a;
+    --loss-bg:   rgba(192,90,74,0.12);
+    --draw:      #4a7fc1;
+    --draw-bg:   rgba(74,127,193,0.12);
+    --unknown-bg:rgba(138,130,117,0.12);
+    --sidebar-w: 340px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Lora', Georgia, serif;
+    font-size: 16px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TOP NAV ── */
+  .topnav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    flex-shrink: 0;
+  }
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cream-d);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.15s;
+  }
+  .nav-back:hover { color: var(--gold-b); }
+  .nav-divider { color: var(--border); }
+  .nav-title {
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: 0.04em;
+  }
+  .nav-title span { color: var(--gold-b); }
+
+  /* ── STATS HEADER ── */
+  .stats-bar {
+    background: var(--surface);
+    border-bottom: 2px solid var(--gold);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .stats-group {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex: 1;
+  }
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .stat-num {
+    font-family: 'Cinzel', serif;
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .stat-num.win  { color: var(--win); }
+  .stat-num.loss { color: var(--loss); }
+  .stat-num.draw { color: var(--draw); }
+  .stat-num.total { color: var(--gold-b); }
+  .stat-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cream-d);
+    margin-top: 3px;
+  }
+  .stats-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--border);
+    margin: 0 8px;
+  }
+  .record-pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--cream-d);
+    letter-spacing: 0.1em;
+  }
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--cream-d);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover,
+  .filter-btn.active { background: var(--gold); color: var(--bg); border-color: var(--gold); font-weight: 600; }
+  .filter-btn.f-win.active  { background: var(--win);  border-color: var(--win); }
+  .filter-btn.f-loss.active { background: var(--loss); border-color: var(--loss); }
+  .filter-btn.f-draw.active { background: var(--draw); border-color: var(--draw); }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    height: calc(100vh - 56px - 72px); /* subtract nav + stats */
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Tournament group header */
+  .tourney-group { margin-bottom: 4px; }
+  .tourney-label {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+    padding: 10px 14px 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .tourney-record {
+    font-size: 9px;
+    color: var(--cream-d);
+    letter-spacing: 0.1em;
+  }
+
+  /* Game row */
+  .game-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(35,44,64,0.5);
+    transition: background 0.12s;
+    position: relative;
+  }
+  .game-row:hover { background: var(--surface2); }
+  .game-row.active {
+    background: var(--surface2);
+    border-left: 3px solid var(--gold-b);
+    padding-left: 11px;
+  }
+  .game-row.hidden { display: none; }
+
+  .result-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .rb-W { background: var(--win-bg);     color: var(--win);  border: 1px solid rgba(61,186,111,0.3); }
+  .rb-L { background: var(--loss-bg);    color: var(--loss); border: 1px solid rgba(192,90,74,0.3); }
+  .rb-D { background: var(--draw-bg);    color: var(--draw); border: 1px solid rgba(74,127,193,0.3); }
+  .rb-Q { background: var(--unknown-bg); color: var(--cream-d); border: 1px solid var(--border); }
+
+  .color-pip {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .cp-w { background: #f0d9b5; border: 1px solid rgba(255,255,255,0.2); }
+  .cp-b { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.15); }
+
+  .game-info { flex: 1; min-width: 0; }
+  .game-players {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--cream);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .game-opening {
+    font-size: 11px;
+    color: var(--cream-d);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+  }
+  .game-eco {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  /* ── VIEWER PANEL ── */
+  .viewer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .viewer-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--surface);
+  }
+  .vh-tourney {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .vh-title {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--cream);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .vh-result {
+    font-size: 13px;
+    padding: 3px 12px;
+    border-radius: 4px;
+  }
+  .vhr-W { background: var(--win-bg);  color: var(--win);  border: 1px solid rgba(61,186,111,0.3); }
+  .vhr-L { background: var(--loss-bg); color: var(--loss); border: 1px solid rgba(192,90,74,0.3); }
+  .vhr-D { background: var(--draw-bg); color: var(--draw); border: 1px solid rgba(74,127,193,0.3); }
+  .vh-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--cream-d);
+    margin-top: 6px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .vh-meta span { display: flex; align-items: center; gap: 4px; }
+
+  /* iframe container */
+  .embed-container {
+    flex: 1;
+    position: relative;
+    background: #161616;
+  }
+  .embed-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+  .embed-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: var(--cream-d);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .embed-placeholder .chess-icon { font-size: 48px; opacity: 0.2; }
+  .embed-placeholder p { opacity: 0.5; }
+
+  /* ── FOOTER ── */
+  .page-footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 12px 24px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--cream-d);
+    letter-spacing: 0.1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .footer-lichess {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--cream-d);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .footer-lichess:hover { color: var(--gold-b); }
+
+  /* ── MOBILE ── */
+  @media (max-width: 700px) {
+    .main { flex-direction: column; height: auto; overflow: visible; }
+    .sidebar { width: 100%; height: 300px; border-right: none; border-bottom: 1px solid var(--border); }
+    .embed-container { height: 450px; }
+    .filter-row { margin-left: 0; margin-top: 10px; width: 100%; }
+    .stats-bar { flex-direction: column; align-items: flex-start; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <a href="index.html" class="nav-back">← Library</a>
+  <span class="nav-divider">|</span>
+  <span class="nav-title">My <span>OTB</span> Games — 2026</span>
+</nav>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-group">
+    <div class="stat-item">
+      <span class="stat-num total">29</span>
+      <span class="stat-label">Games</span>
+    </div>
+    <div class="stats-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num win">11</span>
+      <span class="stat-label">Wins</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num loss">15</span>
+      <span class="stat-label">Losses</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num draw">3</span>
+      <span class="stat-label">Draws</span>
+    </div>
+    <div class="stats-divider"></div>
+    <div class="stat-item">
+      <span class="record-pill">11 · 3 · 15</span>
+    </div>
+  </div>
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="filter('all',this)">All</button>
+    <button class="filter-btn f-win"  onclick="filter('W',this)">Wins</button>
+    <button class="filter-btn f-loss" onclick="filter('L',this)">Losses</button>
+    <button class="filter-btn f-draw" onclick="filter('D',this)">Draws</button>
+    <button class="filter-btn"        onclick="filter('white',this)">As White</button>
+    <button class="filter-btn"        onclick="filter('black',this)">As Black</button>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main">
+
+  <!-- SIDEBAR: game list -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- FIDE Saturday March -->
+    <div class="tourney-group" data-tourney="fide-sat-march">
+      <div class="tourney-label">FIDE Saturday March <span class="tourney-record">0W · 0D · 2L</span></div>
+      <div class="game-row" data-result="L" data-color="white" data-chapter="p5D2dTZ7"
+           data-title="Sean vs Mihir" data-tourney-name="FIDE Saturday March"
+           data-opening="English: King's English, Reversed Closed Sicilian"
+           data-eco="A25" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Mihir</div>
+          <div class="game-opening">English: Reversed Closed Sicilian</div>
+        </div>
+        <span class="game-eco">A25</span>
+      </div>
+<div class="game-opening">English: Caro-Kann Defensive System</div>
+        </div>
+        <span class="game-eco">A11</span>
+      </div>
+      <div class="game-row" data-result="L" data-color="white" data-chapter="PHriBjkD"
+           data-title="Sean vs Mario" data-tourney-name="FIDE Saturday March"
+           data-opening="English: Mikenas-Carls Variation"
+           data-eco="A18" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Mario</div>
+          <div class="game-opening">English: Mikenas-Carls Variation</div>
+        </div>
+        <span class="game-eco">A18</span>
+      </div>
+    </div>
+
+    <!-- Reverse Angle March -->
+    <div class="tourney-group" data-tourney="rev-march">
+      <div class="tourney-label">Reverse Angle March <span class="tourney-record">2W · 0D · 1L</span></div>
+      <div class="game-row" data-result="W" data-color="white" data-chapter="MijGSTUb"
+           data-title="Sean vs Wachendorfer" data-tourney-name="Reverse Angle March"
+           data-opening="English: King's English, Two Knights, Fianchetto Line"
+           data-eco="A24" data-pgresult="1-0"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-W">W</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Wachendorfer</div>
+          <div class="game-opening">English: Two Knights, Fianchetto Line</div>
+        </div>
+        <span class="game-eco">A24</span>
+      </div>
+      <div class="game-row" data-result="L" data-color="black" data-chapter="dzB7sxtZ"
+           data-title="Sean vs Wachendorfer" data-tourney-name="Reverse Angle March"
+           data-opening="English: King's English, Two Knights, Smyslov System"
+           data-eco="A22" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Opponent</div>
+          <div class="game-opening">English: Two Knights, Smyslov System</div>
+        </div>
+        <span class="game-eco">A22</span>
+      </div>
+      <div class="game-row" data-result="W" data-color="black" data-chapter="yoxg81Hd"
+           data-title="Venkat S vs Sean" data-tourney-name="Reverse Angle March"
+           data-opening="Sicilian Defense"
+           data-eco="B20" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-W">W</span>
+        <span class="color-pip cp-b"></span>
+        <div class="game-info">
+          <div class="game-players">Venkat S vs Sean</div>
+          <div class="game-opening">Sicilian Defense</div>
+        </div>
+        <span class="game-eco">B20</span>
+      </div>
+    </div>
+
+    <!-- SAC 2026 -->
+    <div class="tourney-group" data-tourney="sac">
+      <div class="tourney-label">SAC 2026 <span class="tourney-record">0W · 1D · 1L</span></div>
+      <div class="game-row" data-result="L" data-color="black" data-chapter="szxJ0Sp0"
+           data-title="Gil vs Sean" data-tourney-name="SAC 2026"
+           data-opening="Queen's Pawn Game: Stonewall Attack"
+           data-eco="D00" data-pgresult="1-0"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-b"></span>
+        <div class="game-info">
+          <div class="game-players">Gil vs Sean</div>
+          <div class="game-opening">Queen's Pawn: Stonewall Attack</div>
+        </div>
+        <span class="game-eco">D00</span>
+      </div>
+      <div class="game-row" data-result="D" data-color="white" data-chapter="wzMuTZxL"
+           data-title="Sean vs Nichole" data-tourney-name="SAC 2026"
+           data-opening="English: Symmetrical, Fianchetto Variation"
+           data-eco="A34" data-pgresult="1/2-1/2"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-D">D</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Nichole</div>
+          <div class="game-opening">English: Symmetrical, Fianchetto</div>
+        </div>
+        <span class="game-eco">A34</span>
+      </div>
+    </div>
+
+    <!-- FIDE Saturday (various) -->
+    <div class="tourney-group" data-tourney="fide-nov">
+      <div class="tourney-label">FIDE Saturday (Various) <span class="tourney-record">0W · 2D · 2L</span></div>
+      <div class="game-row" data-result="L" data-color="white" data-chapter="BMQbBMNE"
+           data-title="Sean Smith vs Ayaan Geda" data-tourney-name="FIDE Saturday"
+           data-opening="Caro-Kann Defense"
+           data-eco="B10" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean (924) vs Ayaan (1496)</div>
+          <div class="game-opening">Caro-Kann Defense</div>
+        </div>
+        <span class="game-eco">B10</span>
+      </div>
+      <div class="game-row" data-result="D" data-color="black" data-chapter="8ckhMYzO"
+           data-title="John H vs Sean" data-tourney-name="FIDE Saturday Nov"
+           data-opening="Sicilian: Alapin, Smith-Morra Declined"
+           data-eco="B22" data-pgresult="1/2-1/2"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-D">D</span>
+        <span class="color-pip cp-b"></span>
+        <div class="game-info">
+          <div class="game-players">John H vs Sean</div>
+          <div class="game-opening">Sicilian: Alapin, Smith-Morra Declined</div>
+        </div>
+        <span class="game-eco">B22</span>
+      </div>
+      <div class="game-row" data-result="L" data-color="white" data-chapter="nLM2dgep"
+           data-title="Sean vs Mihir" data-tourney-name="FIDE Saturday Nov"
+           data-opening="Italian Game: Giuoco Pianissimo"
+           data-eco="C50" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Mihir</div>
+          <div class="game-opening">Italian: Giuoco Pianissimo</div>
+        </div>
+        <span class="game-eco">C50</span>
+      </div>
+      <div class="game-row" data-result="D" data-color="black" data-chapter="Eh4NsLQl"
+           data-title="Bhargav R vs Sean" data-tourney-name="FIDE Saturday Nov"
+           data-opening="Sicilian: Closed, Traditional"
+           data-eco="B23" data-pgresult="1/2-1/2"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-D">D</span>
+        <span class="color-pip cp-b"></span>
+        <div class="game-info">
+          <div class="game-players">Bhargav (1057) vs Sean (924)</div>
+          <div class="game-opening">Sicilian: Closed, Traditional</div>
+        </div>
+        <span class="game-eco">B23</span>
+      </div>
+    </div>
+
+    <!-- Charlotte Open 2026 -->
+    <div class="tourney-group" data-tourney="charlotte">
+      <div class="tourney-label">Charlotte Open 2026 <span class="tourney-record">3W · 1D · 2L</span></div>
+      <div class="game-row" data-result="L" data-color="white" data-chapter="2QcfDiny"
+           data-title="Sean vs Adam D" data-tourney-name="Charlotte Open 2026"
+           data-opening="Réti: Anglo-Slav Variation, with g3"
+           data-eco="A11" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Adam D</div>
+          <div class="game-opening">Réti: Anglo-Slav, with g3</div>
+        </div>
+        <span class="game-eco">A11</span>
+      </div>
+      <div class="game-row" data-result="W" data-color="black" data-chapter="foakeM1P"
+           data-title="Andrew Z vs Sean" data-tourney-name="Charlotte Open 2026"
+           data-opening="Sicilian: Accelerated Dragon, Modern Variation"
+           data-eco="B34" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-W">W</span>
+        <span class="color-pip cp-b"></span>
+        <div class="game-info">
+          <div class="game-players">Andrew Z vs Sean</div>
+          <div class="game-opening">Sicilian: Accelerated Dragon</div>
+        </div>
+        <span class="game-eco">B34</span>
+      </div>
+      <div class="game-row" data-result="L" data-color="white" data-chapter="tozBLw9O"
+           data-title="Sean vs Anthony D" data-tourney-name="Charlotte Open 2026"
+           data-opening="English: King's English Variation"
+           data-eco="A20" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Anthony D</div>
+          <div class="game-opening">English: King's English Variation</div>
+        </div>
+        <span class="game-eco">A20</span>
+      </div>
+      <div class="game-row" data-result="W" data-color="black" data-chapter="Z3godkiH"
+           data-title="Aishani K vs Sean" data-tourney-name="Charlotte Open 2026"
+           data-opening="Sicilian: Alapin Variation"
+           data-eco="B22" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-W">W</span>
+        <span class="color-pip cp-b"></span>
+        <div class="game-info">
+          <div class="game-players">Aishani K vs Sean</div>
+          <div class="game-opening">Sicilian: Alapin Variation</div>
+        </div>
+        <span class="game-eco">B22</span>
+      </div>
+      <div class="game-row" data-result="D" data-color="white" data-chapter="7P9RJDCt"
+           data-title="Sean vs Dawson W" data-tourney-name="Charlotte Open 2026"
+           data-opening="English: Caro-Kann Defensive System"
+           data-eco="A11" data-pgresult="1/2-1/2"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-D">D</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Dawson W</div>
+          <div class="game-opening">English: Caro-Kann Defensive System</div>
+        </div>
+        <span class="game-eco">A11</span>
+      </div>
+      <div class="game-row" data-result="W" data-color="black" data-chapter="McGW41FN"
+           data-title="Eshan Y vs Sean" data-tourney-name="Charlotte Open 2026"
+           data-opening="Sicilian: Accelerated Dragon, Modern Bc4"
+           data-eco="B35" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-W">W</span>
+        <span class="color-pip cp-b"></span>
+        <div class="game-info">
+          <div class="game-players">Eshan Y vs Sean</div>
+          <div class="game-opening">Sicilian: Accelerated Dragon Bc4</div>
+        </div>
+        <span class="game-eco">B35</span>
+      </div>
+    </div>
+
+    <!-- ALTO April -->
+    <div class="tourney-group" data-tourney="alto">
+      <div class="tourney-label">ALTO April <span class="tourney-record">3W · 0D · 2L</span></div>
+      <div class="game-row" data-result="W" data-color="black" data-chapter="nfjEyyeU"
+           data-title="Dave Worth vs Sean" data-tourney-name="ALTO April"
+           data-opening="Queen's Pawn: Accelerated London System"
+           data-eco="D00" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-W">W</span>
+        <span class="color-pip cp-b"></span>
+        <div class="game-info">
+          <div class="game-players">Dave Worth vs Sean</div>
+          <div class="game-opening">QP: Accelerated London System</div>
+        </div>
+        <span class="game-eco">D00</span>
+      </div>
+      <div class="game-row" data-result="W" data-color="white" data-chapter="8aXilxDa"
+           data-title="Sean vs Randall S" data-tourney-name="ALTO April"
+           data-opening="English Opening"
+           data-eco="A10" data-pgresult="1-0"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-W">W</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Randall S</div>
+          <div class="game-opening">English Opening</div>
+        </div>
+        <span class="game-eco">A10</span>
+      </div>
+      <div class="game-row" data-result="L" data-color="black" data-chapter="bjsa9oWe"
+           data-title="Sheldon S vs Sean" data-tourney-name="ALTO April"
+           data-opening="Sicilian: Closed, Traditional"
+           data-eco="B23" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-b"></span>
+        <div class="game-info">
+          <div class="game-players">Sheldon S vs Sean</div>
+          <div class="game-opening">Sicilian: Closed, Traditional</div>
+        </div>
+        <span class="game-eco">B23</span>
+      </div>
+      <div class="game-row" data-result="L" data-color="white" data-chapter="PrFI7J7M"
+           data-title="Bryan C vs Sean (as White)" data-tourney-name="ALTO April"
+           data-opening="English: Anglo-Indian, Nimzo-English"
+           data-eco="A23" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Bryan C vs Sean</div>
+          <div class="game-opening">English: Anglo-Indian</div>
+        </div>
+        <span class="game-eco">A23</span>
+      </div>
+      <div class="game-row" data-result="W" data-color="black" data-chapter="LfdVUoPl"
+           data-title="Gordan M vs Sean" data-tourney-name="ALTO April"
+           data-opening="Sicilian: Alapin Variation"
+           data-eco="B22" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-W">W</span>
+        <span class="color-pip cp-b"></span>
+        <div class="game-info">
+          <div class="game-players">Gordan M vs Sean</div>
+          <div class="game-opening">Sicilian: Alapin Variation</div>
+        </div>
+        <span class="game-eco">B22</span>
+      </div>
+    </div>
+
+    <!-- FIDE Saturday April -->
+    <div class="tourney-group" data-tourney="fide-april">
+      <div class="tourney-label">FIDE Saturday April <span class="tourney-record">1W · 1D · 2L</span></div>
+      <div class="game-row" data-result="D" data-color="white" data-chapter="xR8NDVlm"
+           data-title="Sean vs Tristen Z" data-tourney-name="FIDE Saturday April"
+           data-opening="English Opening"
+           data-eco="A10" data-pgresult="1/2-1/2"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-D">D</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Tristen Z</div>
+          <div class="game-opening">English Opening</div>
+        </div>
+        <span class="game-eco">A10</span>
+      </div>
+      <div class="game-row" data-result="L" data-color="black" data-chapter="i1IvYn9R"
+           data-title="Mario M vs Sean" data-tourney-name="FIDE Saturday April"
+           data-opening="Caro-Kann: Exchange Variation"
+           data-eco="B13" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-b"></span>
+        <div class="game-info">
+          <div class="game-players">Mario M vs Sean</div>
+          <div class="game-opening">Caro-Kann: Exchange Variation</div>
+        </div>
+        <span class="game-eco">B13</span>
+      </div>
+      <div class="game-row" data-result="W" data-color="white" data-chapter="QFChYt5a"
+           data-title="Sean vs Aaron Duckett" data-tourney-name="FIDE Saturday April"
+           data-opening="English: Symmetrical, Two Knights"
+           data-eco="A36" data-pgresult="1-0"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-W">W</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Aaron Duckett</div>
+          <div class="game-opening">English: Symmetrical, Two Knights</div>
+        </div>
+        <span class="game-eco">A36</span>
+      </div>
+      <div class="game-row" data-result="L" data-color="black" data-chapter="VbdrmRPM"
+           data-title="Arryan Gede vs Sean" data-tourney-name="FIDE Saturday April"
+           data-opening="Slav Defense"
+           data-eco="D15" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-b"></span>
+        <div class="game-info">
+          <div class="game-players">Arryan Gede vs Sean</div>
+          <div class="game-opening">Slav Defense</div>
+        </div>
+        <span class="game-eco">D15</span>
+      </div>
+    </div>
+
+    <!-- Reverse Angle April -->
+    <div class="tourney-group" data-tourney="rev-april">
+      <div class="tourney-label">Reverse Angle April <span class="tourney-record">1W · 0D · 2L</span></div>
+      <div class="game-row" data-result="L" data-color="white" data-chapter="5OsQcMKM"
+           data-title="Sean vs Isaac Warden" data-tourney-name="Reverse Angle April"
+           data-opening="Tarrasch Defense: Symmetrical Variation"
+           data-eco="D32" data-pgresult="0-1"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Isaac Warden</div>
+          <div class="game-opening">Tarrasch: Symmetrical Variation</div>
+        </div>
+        <span class="game-eco">D32</span>
+      </div>
+      <div class="game-row" data-result="L" data-color="black" data-chapter="DjtTDqPM"
+           data-title="Levi Hicks vs Sean" data-tourney-name="Reverse Angle April"
+           data-opening="Sicilian: Alapin Variation"
+           data-eco="B22" data-pgresult="1-0"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-L">L</span>
+        <span class="color-pip cp-b"></span>
+        <div class="game-info">
+          <div class="game-players">Levi Hicks vs Sean</div>
+          <div class="game-opening">Sicilian: Alapin Variation</div>
+        </div>
+        <span class="game-eco">B22</span>
+      </div>
+      <div class="game-row" data-result="W" data-color="white" data-chapter="qWMooxkM"
+           data-title="Sean vs Kip Taylor" data-tourney-name="Reverse Angle April"
+           data-opening="English: King's English, Two Knights"
+           data-eco="A22" data-pgresult="1-0"
+           onclick="loadGame(this)">
+        <span class="result-badge rb-W">W</span>
+        <span class="color-pip cp-w"></span>
+        <div class="game-info">
+          <div class="game-players">Sean vs Kip Taylor</div>
+          <div class="game-opening">English: Two Knights Variation</div>
+        </div>
+        <span class="game-eco">A22</span>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- VIEWER -->
+  <section class="viewer">
+    <div class="viewer-header" id="viewer-header">
+      <div class="vh-tourney" id="vh-tourney">Select a game from the list</div>
+      <div class="vh-title" id="vh-title">
+        OTB Game Viewer
+      </div>
+      <div class="vh-meta" id="vh-meta">
+        <span>♟ Click any game to load · Eval bar included when analysis available</span>
+      </div>
+    </div>
+    <div class="embed-container" id="embed-container">
+      <div class="embed-placeholder" id="placeholder">
+        <span class="chess-icon">♟</span>
+        <p>Select a game to begin</p>
+      </div>
+      <iframe id="game-iframe" src="" allowfullscreen style="display:none;"></iframe>
+    </div>
+  </section>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="page-footer">
+  <span>Chess Guide Library · My OTB Games 2026 · lichess.org/study/M1ROasBT</span>
+  <a href="https://lichess.org/study/M1ROasBT" target="_blank" rel="noopener" class="footer-lichess">
+    View full study on Lichess ↗
+  </a>
+</footer>
+
+<script>
+  const STUDY_ID = 'M1ROasBT';
+  let activeRow = null;
+  let activeFilter = 'all';
+
+  // Load a game into the iframe
+  function loadGame(row) {
+    // Update active state
+    if (activeRow) activeRow.classList.remove('active');
+    row.classList.add('active');
+    activeRow = row;
+
+    const chapterId   = row.dataset.chapter;
+    const title       = row.dataset.title;
+    const tourneyName = row.dataset.tourneyName;
+    const opening     = row.dataset.opening;
+    const eco         = row.dataset.eco;
+    const result      = row.dataset.result;
+    const color       = row.dataset.color;
+    const pgResult    = row.dataset.pgresult;
+
+    // Build embed URL — dark theme, eval bar on, coords on
+    const embedUrl = `https://lichess.org/study/${STUDY_ID}/${chapterId}/embed?theme=brown&bg=dark&coordinatesColor=black`;
+
+    // Update viewer header
+    document.getElementById('vh-tourney').textContent = tourneyName;
+
+    const resultLabel = { W: 'Win', L: 'Loss', D: 'Draw', Q: 'In Progress' }[result] || '';
+    const resultClass = { W: 'vhr-W', L: 'vhr-L', D: 'vhr-D', Q: '' }[result] || '';
+    const colorLabel = color === 'white' ? '♙ White' : '♟ Black';
+
+    document.getElementById('vh-title').innerHTML =
+      `${title} <span class="vh-result ${resultClass}">${resultLabel}</span>`;
+    document.getElementById('vh-meta').innerHTML =
+      `<span>${colorLabel}</span><span>ECO: ${eco}</span><span>${opening}</span><span>Result: ${pgResult}</span>`;
+
+    // Load iframe
+    const iframe = document.getElementById('game-iframe');
+    const placeholder = document.getElementById('placeholder');
+    placeholder.style.display = 'none';
+    iframe.style.display = 'block';
+    iframe.src = embedUrl;
+  }
+
+  // Filter games
+  function filter(type, btn) {
+    activeFilter = type;
+
+    // Update button styles
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Show/hide rows
+    document.querySelectorAll('.game-row').forEach(row => {
+      const result = row.dataset.result;
+      const color  = row.dataset.color;
+
+      let show = false;
+      if (type === 'all')   show = true;
+      else if (type === 'W') show = result === 'W';
+      else if (type === 'L') show = result === 'L';
+      else if (type === 'D') show = result === 'D';
+      else if (type === 'white') show = color === 'white';
+      else if (type === 'black') show = color === 'black';
+
+      row.classList.toggle('hidden', !show);
+    });
+  }
+
+  // Auto-load first game on page load
+  window.addEventListener('load', () => {
+    const firstRow = document.querySelector('.game-row');
+    if (firstRow) loadGame(firstRow);
+  });
+</script>
+</body>
+</html>
